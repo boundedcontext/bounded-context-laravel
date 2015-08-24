@@ -23,10 +23,13 @@ class BoundedContextProvider extends ServiceProvider
             'BoundedContext\Laravel\Bus\Dispatcher'
         );
 
-        $projections = Config::get('projections');
-        foreach($projections as $projection => $implemented_projection)
+        $projection_types = Config::get('projections');
+        foreach($projection_types as $projection_type)
         {
-            $this->app->bind($projection, $implemented_projection);
+            foreach($projection_type as $projection => $implemented_projection)
+            {
+                $this->app->bind($projection, $implemented_projection);
+            }
         }
     }
 
