@@ -55,7 +55,10 @@ class Dispatcher implements BusDispatcher
         foreach($bounded_context_projector_namespaces as $projector_namespace)
         {
             $projector = $this->app->make($projector_namespace);
+            echo "Playing Projector ".get_class($projector);
+            var_dump($projector->projection());
             $projector->play();
+            var_dump($projector->projection());
         }
     }
 
