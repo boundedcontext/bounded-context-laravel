@@ -13,6 +13,9 @@ abstract class AbstractProjection extends Projection\AbstractProjection implemen
     protected $upgrader;
     protected $connection;
 
+    private $metadata_table;
+    private $table;
+
     private $metadata_query;
     protected $query;
 
@@ -27,12 +30,11 @@ abstract class AbstractProjection extends Projection\AbstractProjection implemen
         $this->upgrader = $upgrader;
         $this->connection = $manager->connection();
 
+        $this->metadata_table = $projections_metadata_table;
+        $this->table = $this->table();
+
         $this->metadata_query = $this->connection->table(
             $projections_metadata_table
-        );
-
-        $this->query = $this->connection->table(
-            $this->table()
         );
 
         $this->called_class = get_called_class();
@@ -47,6 +49,11 @@ abstract class AbstractProjection extends Projection\AbstractProjection implemen
 
         $this->connection->beginTransaction();
         //$this->connection->select("LOCK TABLES ".$this->table()." WRITE");
+    }
+
+    protected function query()
+    {
+        return $this->connection->table($this->table());
     }
 
     abstract protected function table();
@@ -70,7 +77,7 @@ abstract class AbstractProjection extends Projection\AbstractProjection implemen
     {
         parent::reset();
 
-        $this->query->delete();
+        $this->query()->delete();
         $this->save();
     }
 

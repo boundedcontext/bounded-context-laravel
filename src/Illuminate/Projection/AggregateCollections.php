@@ -16,7 +16,7 @@ class AggregateCollections extends AbstractProjection implements Projection\Aggr
 
     public function exists(Uuid $id)
     {
-        $item_count = $this->query
+        $item_count = $this->query()
             ->where('aggregate_id', $id->serialize())
             ->count();
 
@@ -25,7 +25,7 @@ class AggregateCollections extends AbstractProjection implements Projection\Aggr
 
     public function get(Uuid $id)
     {
-        $serialized_items = $this->query
+        $serialized_items = $this->query()
             ->where('aggregate_id', $id->serialize())
             ->orderBy('id', 'ASC')
             ->get();
@@ -50,7 +50,7 @@ class AggregateCollections extends AbstractProjection implements Projection\Aggr
 
     public function append(Item $item)
     {
-        $this->query->insert([
+        $this->query()->insert([
             'aggregate_id' => $item->event()->id()->serialize(),
             'item' => json_encode($item->serialize())
         ]);
@@ -67,6 +67,6 @@ class AggregateCollections extends AbstractProjection implements Projection\Aggr
             ];
         }
 
-        $this->query->insert($batch);
+        $this->query()->insert($batch);
     }
 }
