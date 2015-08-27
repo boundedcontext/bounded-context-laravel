@@ -1,28 +1,17 @@
 <?php
 
-namespace BoundedContext\Laravel\Projections\AggregateCollections;
+namespace BoundedContext\Laravel\Illuminate\Projection;
 
 use BoundedContext\Collection\Collection;
-use BoundedContext\Laravel\Illuminate\Item\Upgrader;
-use BoundedContext\Laravel\Projections\AbstractIlluminateProjection;
 use BoundedContext\Log\Item;
-use BoundedContext\Contracts\Projection\AggregateCollections;
+use BoundedContext\Contracts\Projection;
 use BoundedContext\ValueObject\Uuid;
-use Illuminate\Database\Connection;
 
-class IlluminateProjection extends AbstractIlluminateProjection implements AggregateCollections\Projection
+class AggregateCollections extends AbstractProjection implements Projection\AggregateCollections
 {
-    private $upgrader;
-
-    public function __construct(
-        Upgrader $upgrader,
-        Connection $connection,
-        $metadata_table = 'projections',
-        $table
-    )
+    protected function table()
     {
-        $this->upgrader = $upgrader;
-        parent::__construct($connection, $metadata_table, $table);
+        return 'projections_core_aggregate_collections';
     }
 
     public function exists(Uuid $id)
@@ -52,7 +41,7 @@ class IlluminateProjection extends AbstractIlluminateProjection implements Aggre
         {
             $serialized_item = json_decode($serialized_item->item, true);
 
-            $item = $this->upgrader->get($serialized_item);
+            $item = $this->upgrader->deserialize($serialized_item);
             $items->append($item);
         }
 
@@ -63,7 +52,7 @@ class IlluminateProjection extends AbstractIlluminateProjection implements Aggre
     {
         $this->query->insert([
             'aggregate_id' => $item->event()->id()->serialize(),
-            'item' => $item->serialize()
+            'item' => json_encode($item->serialize())
         ]);
     }
 
@@ -74,7 +63,7 @@ class IlluminateProjection extends AbstractIlluminateProjection implements Aggre
         {
             $batch[] = [
                 'aggregate_id' => $item->event()->id()->serialize(),
-                'item' => $item->serialize()
+                'item' => json_encode($item->serialize())
             ];
         }
 

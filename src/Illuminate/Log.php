@@ -1,9 +1,10 @@
 <?php
 
-namespace BoundedContext\Laravel\Log;
+namespace BoundedContext\Laravel\Illuminate;
 
-use BoundedContext\Laravel\Illuminate\Item\Upgrader;
+use BoundedContext\Laravel\Item\Upgrader;
 use Illuminate\Database\Connection;
+use Illuminate\Database\DatabaseManager;
 use Illuminate\Database\Query\Builder;
 
 use BoundedContext\Collection\Collectable;
@@ -11,59 +12,66 @@ use BoundedContext\Stream\Stream;
 use BoundedContext\ValueObject\Uuid;
 use BoundedContext\Collection\Collection;
 
-class IlluminateLog implements \BoundedContext\Contracts\Log
+class Log implements \BoundedContext\Contracts\Log
 {
     private $connection;
     private $upgrader;
-    private $query;
+    private $table;
 
     public function __construct(
         Upgrader $upgrader,
-        Connection $connection,
+        DatabaseManager $manager,
         $table = 'event_log'
     )
     {
         $this->upgrader = $upgrader;
-        $this->connection = $connection;
-        $this->query = $this->connection->table($table);
+        $this->connection = $manager->connection();
+        $this->table = $table;
     }
 
-    public function get_stream(Uuid $id = null)
+    public function query()
+    {
+        return $this->connection->table($this->table);
+    }
+
+    public function reset()
+    {
+        $this->connection->table($this->table)
+            ->delete();
+    }
+
+    public function get_stream(Uuid $id)
     {
         $stream = new Stream($this);
-
-        if(!is_null($id))
-        {
-            $stream->move_to($id);
-        }
+        $stream->move_to($id);
 
         return $stream;
     }
 
-    private function get_starting_id(Uuid $id = null)
+    private function get_starting_id(Uuid $id)
     {
-        if(is_null($id))
+        if($id->is_null())
         {
             return 0;
         }
 
-        $query = $this->query
+        $query = $this->connection->table($this->table)
             ->where('item_id', '=', $id->serialize())
             ->first();
 
         if(!$query)
         {
-            throw new \Exception("The uuid [$id->serialize()] does not exist in log.");
+            throw new \Exception("The uuid [".$id->serialize()."] does not exist in log.");
         }
 
         return $query->id;
     }
 
-    private function get_serialized_items(Uuid $id = null, $limit)
+    private function get_serialized_items(Uuid $id, $limit)
     {
         $starting_id = $this->get_starting_id($id);
 
-        $item_records = $this->query
+        $item_records = $this->connection->table($this->table)
             ->where('id', '>', $starting_id)
             ->limit($limit)
             ->get();
@@ -78,7 +86,7 @@ class IlluminateLog implements \BoundedContext\Contracts\Log
         return $items;
     }
 
-    public function get_collection(Uuid $id = null, $limit = 1000)
+    public function get_collection(Uuid $id, $limit = 1000)
     {
         $serialized_items = $this->get_serialized_items($id, $limit);
 
@@ -98,35 +106,27 @@ class IlluminateLog implements \BoundedContext\Contracts\Log
     {
         $item = $this->upgrader->generate($event);
 
-        $this->query->insert(array(
+        $this->$this->connection->table($this->table)->insert(array(
             'item_id' => $item->id()->serialize(),
             'item' => json_encode($item->serialize())
         ));
-
-        return $item;
     }
 
     public function append_collection(Collection $events)
     {
         $items = [];
-        $generated_items = new Collection();
 
         foreach($events as $event)
         {
             $item = $this->upgrader->generate($event);
 
-            $generated_items->append($item);
-
             $items[] = [
+                'item_id' => $item->id()->serialize(),
                 'item' => json_encode($item->serialize())
             ];
         }
 
-        $this->query->insert(array(
-            'item_id' => $item->id()->serialize(),
-            'item' => json_encode($item->serialize())
-        ));
-
-        return $generated_items;
+        $this->connection->table($this->table)
+            ->insert($items);
     }
 }

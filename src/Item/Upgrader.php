@@ -1,6 +1,6 @@
 <?php
 
-namespace BoundedContext\Laravel\Illuminate\Item;
+namespace BoundedContext\Laravel\Item;
 
 use BoundedContext\Contracts\Event;
 use BoundedContext\Contracts\Map;

@@ -1,6 +1,6 @@
 <?php
 
-namespace BoundedContext\Laravel\Log;
+namespace BoundedContext\Laravel\Memory;
 
 use BoundedContext\Collection\Collectable;
 use BoundedContext\Log\Item;
@@ -12,7 +12,7 @@ use BoundedContext\ValueObject\Uuid;
 use BoundedContext\Collection\Collection;
 use BoundedContext\ValueObject\Version;
 
-class InMemoryLog implements \BoundedContext\Contracts\Log
+class Log implements \BoundedContext\Contracts\Log
 {
     private $event_map;
     private $items;
@@ -26,6 +26,11 @@ class InMemoryLog implements \BoundedContext\Contracts\Log
         {
             $this->items[] = json_encode($item, true);
         }
+    }
+
+    public function reset()
+    {
+        $this->items = [];
     }
 
     public function get_stream(Uuid $id = null)

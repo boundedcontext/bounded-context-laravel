@@ -1,6 +1,6 @@
 <?php
 
-namespace BoundedContext\Laravel\Console\Commands;
+namespace BoundedContext\Laravel\Console\Command;
 
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Application;

@@ -5,8 +5,6 @@ namespace BoundedContext\Laravel\Bus;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Bus\Dispatcher as BusDispatcher;
 
-use BoundedContext\Contracts\Projection\AggregateCollections;
-
 class Dispatcher implements BusDispatcher
 {
     private $app;
@@ -47,18 +45,16 @@ class Dispatcher implements BusDispatcher
             $bindings
         );
 
-        $bounded_context_projector_namespaces = preg_grep(
-            "/Projector$/",
+        $bounded_context_projection_namespaces = preg_grep(
+            "/Projection$/",
             $bounded_context_namespace_bindings
         );
 
-        foreach($bounded_context_projector_namespaces as $projector_namespace)
+        foreach($bounded_context_projection_namespaces as $projection_namespace)
         {
+            $projector_namespace = preg_replace('/Projection$/', 'Projector', $projection_namespace);
             $projector = $this->app->make($projector_namespace);
-            echo "Playing Projector ".get_class($projector);
-            var_dump($projector->projection());
             $projector->play();
-            var_dump($projector->projection());
         }
     }
 
