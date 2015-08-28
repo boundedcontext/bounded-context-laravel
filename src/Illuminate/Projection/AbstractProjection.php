@@ -24,7 +24,7 @@ abstract class AbstractProjection extends Projection\AbstractProjection implemen
     public function __construct(
         Upgrader $upgrader,
         DatabaseManager $manager,
-        $projections_metadata_table = 'projections'
+        $projections_metadata_table = 'projectors'
     )
     {
         $this->upgrader = $upgrader;
@@ -44,7 +44,7 @@ abstract class AbstractProjection extends Projection\AbstractProjection implemen
         parent::__construct(
             new Uuid($metadata->last_id),
             new Version($metadata->version),
-            new Version($metadata->count)
+            new Version($metadata->items_processed)
         );
 
         $this->connection->beginTransaction();
@@ -88,7 +88,7 @@ abstract class AbstractProjection extends Projection\AbstractProjection implemen
             ->update(array(
                 'last_id' => $this->last_id->serialize(),
                 'version' => $this->version->serialize(),
-                'count' => $this->count->serialize()
+                'items_processed' => $this->count->serialize()
             ));
 
         $this->connection->commit();

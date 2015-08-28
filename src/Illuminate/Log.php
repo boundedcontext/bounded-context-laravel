@@ -21,12 +21,15 @@ class Log implements \BoundedContext\Contracts\Log
     public function __construct(
         Upgrader $upgrader,
         DatabaseManager $manager,
-        $table = 'event_log'
+        $table = 'event_log',
+        $stream_table = 'event_stream'
     )
     {
         $this->upgrader = $upgrader;
         $this->connection = $manager->connection();
+
         $this->table = $table;
+        $this->stream_table =$stream_table;
     }
 
     public function query()
@@ -37,6 +40,9 @@ class Log implements \BoundedContext\Contracts\Log
     public function reset()
     {
         $this->connection->table($this->table)
+            ->delete();
+
+        $this->connection->table($this->stream_table)
             ->delete();
     }
 
@@ -55,8 +61,8 @@ class Log implements \BoundedContext\Contracts\Log
             return 0;
         }
 
-        $query = $this->connection->table($this->table)
-            ->where('item_id', '=', $id->serialize())
+        $query = $this->connection->table($this->stream_table)
+            ->where('id', '=', $id->serialize())
             ->first();
 
         if(!$query)
@@ -64,7 +70,7 @@ class Log implements \BoundedContext\Contracts\Log
             throw new \Exception("The uuid [".$id->serialize()."] does not exist in log.");
         }
 
-        return $query->id;
+        return $query->event_log_id;
     }
 
     private function get_serialized_items(Uuid $id, $limit)
@@ -106,27 +112,21 @@ class Log implements \BoundedContext\Contracts\Log
     {
         $item = $this->upgrader->generate($event);
 
-        $this->$this->connection->table($this->table)->insert(array(
-            'item_id' => $item->id()->serialize(),
+        $id = $this->connection->table($this->table)->insertGetId(array(
             'item' => json_encode($item->serialize())
         ));
+
+        $this->connection->table($this->stream_table)->insert([
+            'id' => $item->id()->serialize(),
+            'event_log_id' => $id
+        ]);
     }
 
     public function append_collection(Collection $events)
     {
-        $items = [];
-
         foreach($events as $event)
         {
-            $item = $this->upgrader->generate($event);
-
-            $items[] = [
-                'item_id' => $item->id()->serialize(),
-                'item' => json_encode($item->serialize())
-            ];
+            $this->append($event);
         }
-
-        $this->connection->table($this->table)
-            ->insert($items);
     }
 }
