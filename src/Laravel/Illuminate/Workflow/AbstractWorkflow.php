@@ -15,10 +15,10 @@ abstract class AbstractWorkflow extends \BoundedContext\Workflow\AbstractWorkflo
 
     public function __construct(Application $app)
     {
-        $this->dispatcher = $this->app->make('Illuminate\Contracts\Bus\Dispatcher');
-        $this->log = $this->app->make('BoundedContext\Contracts\Log');
-        $this->connection = $this->app->make('db');
-        $this->table = $this->app->make('config')->get('bounded-context.database.tables.workflows');
+        $this->dispatcher = $app->make('Illuminate\Contracts\Bus\Dispatcher');
+        $this->log = $app->make('BoundedContext\Contracts\Log');
+        $this->connection = $app->make('db');
+        $this->table = $app->make('config')->get('bounded-context.database.tables.workflows');
 
         $this->name = get_called_class();
 
