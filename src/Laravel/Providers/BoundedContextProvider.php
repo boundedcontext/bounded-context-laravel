@@ -22,7 +22,15 @@ class BoundedContextProvider extends ServiceProvider
         $this->publishes([
             __DIR__.'/../database/migrations/' => database_path('/migrations')
         ], 'migrations');
+    }
 
+    /**
+     * Register any application services.
+     *
+     * @return void
+     */
+    public function register()
+    {
         $this->app->bind(
             'Illuminate\Contracts\Bus\Dispatcher',
             'BoundedContext\Laravel\Bus\Dispatcher'
@@ -33,15 +41,6 @@ class BoundedContextProvider extends ServiceProvider
             return new Map(Config::get('events'));
         });
 
-        $this->app->singleton('BoundedContext\Contracts\Log', function($app)
-        {
-            return new Illuminate\Log(
-                $this->app->make('BoundedContext\Laravel\Item\Upgrader'),
-                $this->app->make('db'),
-                'event_log'
-            );
-        });
-
         $projection_types = Config::get('projections');
         foreach($projection_types as $projection_type)
         {
@@ -50,15 +49,5 @@ class BoundedContextProvider extends ServiceProvider
                 $this->app->singleton($projection, $implemented_projection);
             }
         }
-    }
-
-    /**
-     * Register any application services.
-     *
-     * @return void
-     */
-    public function register()
-    {
-
     }
 }
