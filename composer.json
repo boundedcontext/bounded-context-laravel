@@ -4,7 +4,7 @@
   "license": "MIT",
   "require": {
     "php": ">=5.4.0",
-    "lyonscf/bounded-context": "dev-master"
+    "lyonscf/bounded-context": "~0.1"
   },
   "require-dev": {
     "phpunit/phpunit": "4.1.*",
