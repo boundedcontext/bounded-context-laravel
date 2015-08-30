@@ -20,9 +20,7 @@ class BoundedContextProvider extends ServiceProvider
     public function boot()
     {
         $this->publishes([
-            __DIR__.'/../../config/events.php' => config_path('events.php'),
-            __DIR__.'/../../config/projections.php' => config_path('projections.php'),
-            __DIR__.'/../../config/workflows.php' => config_path('workflows.php'),
+            __DIR__.'/../../config/bounded-context.php' => config_path('bounded-context.php'),
         ]);
 
         $this->publishes([
@@ -44,10 +42,10 @@ class BoundedContextProvider extends ServiceProvider
 
         $this->app->singleton('BoundedContext\Contracts\Map', function($app)
         {
-            return new Map(Config::get('events'));
+            return new Map(Config::get('bounded-context.events'));
         });
 
-        $projection_types = Config::get('projections');
+        $projection_types = Config::get('bounded-context.projections');
 
         if(!$projection_types)
         {
