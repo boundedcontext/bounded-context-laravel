@@ -19,6 +19,10 @@ class BoundedContextProvider extends ServiceProvider
      */
     public function boot()
     {
+        $this->publishes([
+            __DIR__.'/../database/migrations/' => database_path('/migrations')
+        ], 'migrations');
+
         $this->app->bind(
             'Illuminate\Contracts\Bus\Dispatcher',
             'BoundedContext\Laravel\Bus\Dispatcher'

@@ -62,7 +62,7 @@ class Log implements \BoundedContext\Contracts\Log
         }
 
         $query = $this->connection->table($this->stream_table)
-            ->where('id', '=', $id->serialize())
+            ->where('event_log_item_id', '=', $id->serialize())
             ->first();
 
         if(!$query)
@@ -117,8 +117,8 @@ class Log implements \BoundedContext\Contracts\Log
         ));
 
         $this->connection->table($this->stream_table)->insert([
-            'id' => $item->id()->serialize(),
-            'event_log_id' => $id
+            'event_log_id' => $id,
+            'event_log_item_id' => $item->id()->serialize(),
         ]);
     }
 

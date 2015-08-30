@@ -26,8 +26,9 @@ class AggregateCollections extends AbstractProjection implements Projection\Aggr
     public function get(Uuid $id)
     {
         $serialized_items = $this->query()
+            ->join('event_log', $this->table().'.event_log_id', '=' , 'event_log.id')
             ->where('aggregate_id', $id->serialize())
-            ->orderBy('id', 'ASC')
+            ->orderBy('event_log.id', 'ASC')
             ->get();
 
         if(!$serialized_items)
@@ -50,23 +51,26 @@ class AggregateCollections extends AbstractProjection implements Projection\Aggr
 
     public function append(Item $item)
     {
+        $event_stream_row = $this->connection->table('event_stream')
+            ->where('event_log_item_id', $item->id()->serialize())
+            ->first();
+
+        if(!$event_stream_row)
+        {
+            throw new \Exception("The event stream does not contain an item for [".$item->id()->serialize()."].");
+        }
+
         $this->query()->insert([
-            'aggregate_id' => $item->event()->id()->serialize(),
-            'item' => json_encode($item->serialize())
+            'event_log_id' => $event_stream_row->event_log_id,
+            'aggregate_id' => $item->event()->id()->serialize()
         ]);
     }
 
     public function append_collection(Collection $items)
     {
-        $batch = [];
         foreach($items as $item)
         {
-            $batch[] = [
-                'aggregate_id' => $item->event()->id()->serialize(),
-                'item' => json_encode($item->serialize())
-            ];
+            $this->append($item);
         }
-
-        $this->query()->insert($batch);
     }
 }
