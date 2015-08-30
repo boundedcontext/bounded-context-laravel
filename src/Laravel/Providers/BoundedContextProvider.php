@@ -20,13 +20,13 @@ class BoundedContextProvider extends ServiceProvider
     public function boot()
     {
         $this->publishes([
-            __DIR__.'../../config/events.php' => config_path('events.php'),
-            __DIR__.'../../config/projections.php' => config_path('projections.php'),
-            __DIR__.'../../config/workflows.php' => config_path('workflows.php'),
+            __DIR__.'/../../config/events.php' => config_path('events.php'),
+            __DIR__.'/../../config/projections.php' => config_path('projections.php'),
+            __DIR__.'/../../config/workflows.php' => config_path('workflows.php'),
         ]);
 
         $this->publishes([
-            __DIR__.'../../migrations/' => database_path('/migrations')
+            __DIR__.'/../../migrations/' => database_path('/migrations')
         ], 'migrations');
     }
 
