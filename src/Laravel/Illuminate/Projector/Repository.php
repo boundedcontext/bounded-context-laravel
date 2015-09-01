@@ -5,7 +5,6 @@ namespace BoundedContext\Laravel\Illuminate\Projector;
 use BoundedContext\Contracts\Projector;
 use Illuminate\Contracts\Foundation\Application;
 
-use BoundedContext\Contracts\Projection;
 use BoundedContext\ValueObject\Uuid;
 use BoundedContext\ValueObject\Version;
 
