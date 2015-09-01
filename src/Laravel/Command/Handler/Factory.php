@@ -55,7 +55,4 @@ class Factory
 
         return $r->newInstanceArgs($params_array);
     }
-
-
-
 }

@@ -18,12 +18,12 @@ class Dispatcher implements BusDispatcher
 
     public function dispatchFromArray($command, array $array)
     {
-
+        throw new \Exception("The dispatchFromArray method is not supported.");
     }
 
     public function dispatchFrom($command, \ArrayAccess $source, array $extras = array())
     {
-
+        throw new \Exception("The dispatchFrom method is not supported.");
     }
 
     public function dispatch($command, \Closure $afterResolving = null)
@@ -36,15 +36,25 @@ class Dispatcher implements BusDispatcher
 
         $player = new Projector\Player($this->app, 'domain');
         $player->play();
+
+        if(!is_null($afterResolving))
+        {
+            return $afterResolving($this->app);
+        }
     }
 
     public function dispatchNow($command, \Closure $afterResolving = null)
     {
+        $this->dispatch($command);
 
+        if(!is_null($afterResolving))
+        {
+            return $afterResolving($this->app);
+        }
     }
 
     public function pipeThrough(array $pipes)
     {
-
+        throw new \Exception("The pipeThrough method is not supported.");
     }
 }
