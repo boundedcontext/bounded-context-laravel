@@ -8,7 +8,6 @@ use Illuminate\Database\DatabaseManager;
 use Illuminate\Database\Query\Builder;
 
 use BoundedContext\Collection\Collectable;
-use BoundedContext\Stream\Stream;
 use BoundedContext\ValueObject\Uuid;
 use BoundedContext\Collection\Collection;
 
@@ -44,14 +43,6 @@ class Log implements \BoundedContext\Contracts\Log
 
         $this->connection->table($this->stream_table)
             ->delete();
-    }
-
-    public function get_stream(Uuid $id)
-    {
-        $stream = new Stream($this);
-        $stream->move_to($id);
-
-        return $stream;
     }
 
     private function get_starting_id(Uuid $id)

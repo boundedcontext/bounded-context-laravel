@@ -33,18 +33,6 @@ class Log implements \BoundedContext\Contracts\Log
         $this->items = [];
     }
 
-    public function get_stream(Uuid $id = null)
-    {
-        $stream = new Stream($this);
-
-        if(!is_null($id))
-        {
-            $stream->move_to($id);
-        }
-
-        return $stream;
-    }
-
     public function get_collection(Uuid $id = null, $limit = 1000)
     {
         $items = new Collection();

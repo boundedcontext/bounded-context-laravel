@@ -4,15 +4,14 @@ namespace BoundedContext\Laravel\Illuminate\Projection;
 
 use BoundedContext\Collection\Collection;
 use BoundedContext\Log\Item;
-use BoundedContext\Contracts\Projection;
+use BoundedContext\Projection\AggregateCollections\Projection;
 use BoundedContext\ValueObject\Uuid;
 
-class AggregateCollections extends AbstractProjection implements Projection\AggregateCollections
+class AggregateCollections extends AbstractProjection implements Projection
 {
-    protected function table()
-    {
-        return 'projections_core_aggregate_collections';
-    }
+    protected $table = 'projections_core_aggregate_collections';
+    protected $event_log_table = 'event_log';
+    protected $event_stream_table = 'event_stream';
 
     public function exists(Uuid $id)
     {
@@ -26,9 +25,14 @@ class AggregateCollections extends AbstractProjection implements Projection\Aggr
     public function get(Uuid $id)
     {
         $serialized_items = $this->query()
-            ->join('event_log', $this->table().'.event_log_id', '=' , 'event_log.id')
+            ->join(
+                $this->event_log_table,
+                $this->table.'.event_log_id',
+                '=' ,
+                $this->event_log_table.'.id'
+            )
             ->where('aggregate_id', $id->serialize())
-            ->orderBy('event_log.id', 'ASC')
+            ->orderBy($this->event_log_table.'.id', 'ASC')
             ->get();
 
         if(!$serialized_items)
@@ -38,11 +42,13 @@ class AggregateCollections extends AbstractProjection implements Projection\Aggr
 
         $items = new Collection();
 
+        $upgrader = $this->application->make('BoundedContext\Laravel\Item\Upgrader');
+
         foreach($serialized_items as $serialized_item)
         {
             $serialized_item = json_decode($serialized_item->item, true);
 
-            $item = $this->upgrader->deserialize($serialized_item);
+            $item = $upgrader->deserialize($serialized_item);
             $items->append($item);
         }
 
@@ -51,7 +57,7 @@ class AggregateCollections extends AbstractProjection implements Projection\Aggr
 
     public function append(Item $item)
     {
-        $event_stream_row = $this->connection->table('event_stream')
+        $event_stream_row = $this->connection->table($this->event_stream_table)
             ->where('event_log_item_id', $item->id()->serialize())
             ->first();
 

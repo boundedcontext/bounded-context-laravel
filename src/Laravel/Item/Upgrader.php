@@ -5,12 +5,10 @@ namespace BoundedContext\Laravel\Item;
 use BoundedContext\Contracts\Event;
 use BoundedContext\Contracts\Map;
 use BoundedContext\Log\Item;
-use BoundedContext\Contracts\Projection\AggregateCollections;
 use BoundedContext\Schema\Schema;
 use BoundedContext\ValueObject\DateTime;
 use BoundedContext\ValueObject\Uuid;
 use BoundedContext\ValueObject\Version;
-use Illuminate\Database\Connection;
 
 class Upgrader
 {
