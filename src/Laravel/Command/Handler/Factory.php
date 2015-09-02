@@ -27,7 +27,7 @@ class Factory
         $state_class = $aggregate_namespace . "State";
 
         $repository = new Repository(
-            $this->app->make('BoundedContext\Contracts\Log'),
+            $this->app->make('EventLog'),
             $this->app->make('BoundedContext\Projection\AggregateCollections\Projection'),
             new $aggregate_class(Uuid::null(), new $state_class, new Collection())
         );

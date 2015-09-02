@@ -53,7 +53,7 @@ class Log implements \BoundedContext\Contracts\Log
         }
 
         $query = $this->connection->table($this->stream_table)
-            ->where('event_log_item_id', '=', $id->serialize())
+            ->where('log_item_id', '=', $id->serialize())
             ->first();
 
         if(!$query)
@@ -61,7 +61,7 @@ class Log implements \BoundedContext\Contracts\Log
             throw new \Exception("The uuid [".$id->serialize()."] does not exist in log.");
         }
 
-        return $query->event_log_id;
+        return $query->log_id;
     }
 
     private function get_serialized_items(Uuid $id, $limit)
@@ -108,8 +108,8 @@ class Log implements \BoundedContext\Contracts\Log
         ));
 
         $this->connection->table($this->stream_table)->insert([
-            'event_log_id' => $id,
-            'event_log_item_id' => $item->id()->serialize(),
+            'log_id' => $id,
+            'log_item_id' => $item->id()->serialize(),
         ]);
     }
 

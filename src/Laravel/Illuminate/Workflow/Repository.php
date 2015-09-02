@@ -33,7 +33,7 @@ class Repository
         }
 
         return new $workflow_namespace(
-            $this->app->make('BoundedContext\Contracts\Log'),
+            $this->app->make('EventLog'),
             new Uuid($workflow_row->last_id)
         );
     }

@@ -37,6 +37,9 @@ class Dispatcher implements BusDispatcher
         $player = new Projector\Player($this->app, 'domain');
         $player->play();
 
+        $command_log = $this->app->make('CommandLog');
+        $command_log->append($command);
+
         if(!is_null($afterResolving))
         {
             return $afterResolving($this->app);

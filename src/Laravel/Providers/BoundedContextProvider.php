@@ -40,11 +40,6 @@ class BoundedContextProvider extends ServiceProvider
             'BoundedContext\Laravel\Bus\Dispatcher'
         );
 
-        $this->app->singleton('BoundedContext\Contracts\Map', function($app)
-        {
-            return new Map(Config::get('bounded-context.events'));
-        });
-
         $projection_types = Config::get('bounded-context.projections');
 
         if(!$projection_types)

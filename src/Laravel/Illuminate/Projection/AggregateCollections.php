@@ -3,7 +3,9 @@
 namespace BoundedContext\Laravel\Illuminate\Projection;
 
 use BoundedContext\Collection\Collection;
+use BoundedContext\Laravel\Item\Upgrader;
 use BoundedContext\Log\Item;
+use BoundedContext\Map\Map;
 use BoundedContext\Projection\AggregateCollections\Projection;
 use BoundedContext\ValueObject\Uuid;
 
@@ -27,7 +29,7 @@ class AggregateCollections extends AbstractProjection implements Projection
         $serialized_items = $this->query()
             ->join(
                 $this->event_log_table,
-                $this->table.'.event_log_id',
+                $this->table.'.log_id',
                 '=' ,
                 $this->event_log_table.'.id'
             )
@@ -42,7 +44,9 @@ class AggregateCollections extends AbstractProjection implements Projection
 
         $items = new Collection();
 
-        $upgrader = $this->application->make('BoundedContext\Laravel\Item\Upgrader');
+        $upgrader = new Upgrader(new Map(
+            $this->application->make('config')->get('bounded-context.events')
+        ));
 
         foreach($serialized_items as $serialized_item)
         {
@@ -58,7 +62,7 @@ class AggregateCollections extends AbstractProjection implements Projection
     public function append(Item $item)
     {
         $event_stream_row = $this->connection->table($this->event_stream_table)
-            ->where('event_log_item_id', $item->id()->serialize())
+            ->where('log_item_id', $item->id()->serialize())
             ->first();
 
         if(!$event_stream_row)
@@ -67,8 +71,8 @@ class AggregateCollections extends AbstractProjection implements Projection
         }
 
         $this->query()->insert([
-            'event_log_id' => $event_stream_row->event_log_id,
-            'aggregate_id' => $item->event()->id()->serialize()
+            'log_id' => $event_stream_row->log_id,
+            'aggregate_id' => $item->payload()->id()->serialize()
         ]);
     }
 

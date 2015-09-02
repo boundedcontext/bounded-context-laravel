@@ -37,7 +37,7 @@ class Repository
         $projection_namespace = preg_replace('/Projector$/', 'Projection', $projector_namespace);
 
         $projector = new $projector_namespace(
-            $this->app->make('BoundedContext\Contracts\Log'),
+            $this->app->make('EventLog'),
             $this->app->make($projection_namespace),
             new Uuid($projector_row->last_id),
             new Version($projector_row->version),

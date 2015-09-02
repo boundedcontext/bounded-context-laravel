@@ -2,7 +2,7 @@
 
 namespace BoundedContext\Laravel\Item;
 
-use BoundedContext\Contracts\Event;
+use BoundedContext\Collection\Collectable;
 use BoundedContext\Contracts\Map;
 use BoundedContext\Log\Item;
 use BoundedContext\Schema\Schema;
@@ -12,25 +12,20 @@ use BoundedContext\ValueObject\Version;
 
 class Upgrader
 {
-    private $event_map;
+    private $class_map;
 
-    public function __construct(Map $event_map)
+    public function __construct(Map $class_map)
     {
-        $this->event_map = $event_map;
-    }
-
-    private function get_event_class(Uuid $type_id)
-    {
-        return $this->event_map->get_event_class($type_id);
+        $this->class_map = $class_map;
     }
 
     private function get_upgrader_class(Uuid $type_id)
     {
-        $event_class = $this->get_event_class($type_id);
+        $class = $this->class_map->get_class($type_id);
 
-        $aggregate_prefix = substr($event_class, 0, strpos($event_class, "Event"));
-        $upgrader_suffix = explode('Event\\', $event_class)[1];
-        $upgrader_class = $aggregate_prefix . 'Upgrader\\' . $upgrader_suffix;
+        $aggregate_prefix = substr($class, 0, strrpos($class, "\\"));
+        $upgrader_suffix = substr($class, strrpos($class, "\\"));
+        $upgrader_class = $aggregate_prefix . '\\Upgrader' . $upgrader_suffix;
 
         return $upgrader_class;
     }
@@ -39,29 +34,29 @@ class Upgrader
     {
         $type_id = new Uuid($serialized_item['type_id']);
 
-        $event_class = $this->get_event_class($type_id);
+        $class = $this->class_map->get_class($type_id);
         $upgrader_class = $this->get_upgrader_class($type_id);
 
-        $upgraded_serialized_event = new $upgrader_class(
-            new Schema($serialized_item['event']),
+        $upgraded_serialized_class = new $upgrader_class(
+            new Schema($serialized_item['payload']),
             new Version($serialized_item['version'])
         );
 
-        $upgraded_serialized_event->run();
+        $upgraded_serialized_class->run();
 
         return new Item(
             new Uuid($serialized_item['id']),
             new Uuid($serialized_item['type_id']),
             new DateTime($serialized_item['occurred_at']),
-            $upgraded_serialized_event->version(),
-            $event_class::deserialize($upgraded_serialized_event->schema())
+            $upgraded_serialized_class->version(),
+            $class::deserialize($upgraded_serialized_class->schema())
         );
     }
 
-    public function generate(Event $event)
+    public function generate(Collectable $payload)
     {
-        $type_id = $this->event_map->get_id($event);
-        $event_class = get_class($event);
+        $type_id = $this->class_map->get_id($payload);
+        $event_class = get_class($payload);
 
         $upgrader_class = $this->get_upgrader_class($type_id);
 
@@ -77,7 +72,7 @@ class Upgrader
             $type_id,
             new DateTime,
             $upgrader->version(),
-            $event
+            $payload
         );
     }
 
