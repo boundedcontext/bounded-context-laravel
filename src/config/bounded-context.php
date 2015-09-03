@@ -4,8 +4,10 @@ return [
 
     'database' => [
         'tables' => [
-            'log'           => 'event_log',
-            'stream'        => 'event_stream',
+            'command_log'   => 'command_log',
+            'command_stream'=> 'command_stream',
+            'event_log'     => 'event_log',
+            'event_stream'  => 'event_stream',
             'projectors'    => 'projectors',
             'workflows'     => 'workflows',
         ]
@@ -30,7 +32,7 @@ return [
     'projections' => [
 
         'core' => [
-            \BoundedContext\Contracts\Projection\AggregateCollections::class =>
+            \BoundedContext\Projection\AggregateCollections\Projection::class =>
                 \BoundedContext\Laravel\Illuminate\Projection\AggregateCollections::class,
         ],
 
@@ -78,6 +80,29 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Commands
+    |--------------------------------------------------------------------------
+    |
+    | Here are each of the database connections setup for your application.
+    | Of course, examples of configuring each database platform that is
+    | supported by Laravel is shown below to make development simple.
+    |
+    |
+    | All database work in Laravel is done through the PHP PDO facilities
+    | so make sure you have the driver for your particular database of
+    | choice installed on your machine before you begin development.
+    |
+    */
+
+    'commands' => [
+        /*
+        '5225203f-3ff0-44aa-9142-4da277e6c009' =>
+            \Domain\Test\Aggregate\User\Command\Create::class,
+        */
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Events
     |--------------------------------------------------------------------------
     |
@@ -94,8 +119,8 @@ return [
 
     'events' => [
         /*
-        '00000000-0000-0000-0000-000000000000' =>
-            \Domain\BoundedContext\Aggregate\Event::class,
+        'cfd9ef79-2cf3-4ee6-805f-619f72352921' =>
+            \Domain\Test\Aggregate\User\Event\Created::class,
         */
-    ]
+    ],
 ];
