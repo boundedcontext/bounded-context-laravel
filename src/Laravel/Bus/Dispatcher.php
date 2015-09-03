@@ -2,12 +2,13 @@
 
 namespace BoundedContext\Laravel\Bus;
 
+use BoundedContext\Collection\Collection;
+use BoundedContext\Contracts\Command;
 use BoundedContext\Laravel\Command\Handler;
 use BoundedContext\Laravel\Illuminate\Projector;
 use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Contracts\Bus\Dispatcher as BusDispatcher;
 
-class Dispatcher implements BusDispatcher
+class Dispatcher implements \BoundedContext\Contracts\Dispatcher
 {
     private $app;
 
@@ -16,17 +17,7 @@ class Dispatcher implements BusDispatcher
         $this->app = $app;
     }
 
-    public function dispatchFromArray($command, array $array)
-    {
-        throw new \Exception("The dispatchFromArray method is not supported.");
-    }
-
-    public function dispatchFrom($command, \ArrayAccess $source, array $extras = array())
-    {
-        throw new \Exception("The dispatchFrom method is not supported.");
-    }
-
-    public function dispatch($command, \Closure $afterResolving = null)
+    public function dispatch(Command $command)
     {
         $handler = (new Handler\Factory($this->app, $command))->generate();
         $handler->handle($command);
@@ -39,25 +30,15 @@ class Dispatcher implements BusDispatcher
 
         $command_log = $this->app->make('CommandLog');
         $command_log->append($command);
+    }
 
-        if(!is_null($afterResolving))
+    public function dispatch_collection(Collection $commands)
+    {
+        foreach($commands as $command)
         {
-            return $afterResolving($this->app);
+            $this->dispatch($command);
         }
     }
 
-    public function dispatchNow($command, \Closure $afterResolving = null)
-    {
-        $this->dispatch($command);
 
-        if(!is_null($afterResolving))
-        {
-            return $afterResolving($this->app);
-        }
-    }
-
-    public function pipeThrough(array $pipes)
-    {
-        throw new \Exception("The pipeThrough method is not supported.");
-    }
 }
