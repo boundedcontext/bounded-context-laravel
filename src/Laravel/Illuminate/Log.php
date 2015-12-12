@@ -11,7 +11,7 @@ use BoundedContext\Collection\Collectable;
 use BoundedContext\ValueObject\Uuid;
 use BoundedContext\Collection\Collection;
 
-class Log implements \BoundedContext\Contracts\Log
+class Log implements \BoundedContext\Contracts\Sourced\Log
 {
     private $connection;
     private $upgrader;
