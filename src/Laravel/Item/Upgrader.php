@@ -3,8 +3,8 @@
 namespace BoundedContext\Laravel\Item;
 
 use BoundedContext\Collection\Collectable;
-use BoundedContext\Contracts\Map;
 use BoundedContext\Log\Item;
+use BoundedContext\Map\Map;
 use BoundedContext\Schema\Schema;
 use BoundedContext\ValueObject\DateTime;
 use BoundedContext\ValueObject\Uuid;
