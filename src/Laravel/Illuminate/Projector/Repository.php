@@ -2,7 +2,7 @@
 
 namespace BoundedContext\Laravel\Illuminate\Projector;
 
-use BoundedContext\Contracts\Projector;
+use BoundedContext\Contracts\Projection\Projector;
 use Illuminate\Contracts\Foundation\Application;
 
 use BoundedContext\ValueObject\Uuid;

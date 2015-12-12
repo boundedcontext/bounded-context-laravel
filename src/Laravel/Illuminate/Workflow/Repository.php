@@ -3,7 +3,7 @@
 namespace BoundedContext\Laravel\Illuminate\Workflow;
 
 use BoundedContext\ValueObject\Uuid;
-use BoundedContext\Contracts\Workflow;
+use BoundedContext\Contracts\Workflow\Workflow;
 use Illuminate\Contracts\Foundation\Application;
 
 class Repository
