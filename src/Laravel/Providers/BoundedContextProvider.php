@@ -36,7 +36,7 @@ class BoundedContextProvider extends ServiceProvider
     public function register()
     {
         $this->app->bind(
-            'BoundedContext\Contracts\Dispatcher',
+            'BoundedContext\Contracts\Bus\Dispatcher',
             'BoundedContext\Laravel\Bus\Dispatcher'
         );
 

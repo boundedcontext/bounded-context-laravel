@@ -3,12 +3,12 @@
 namespace BoundedContext\Laravel\Bus;
 
 use BoundedContext\Collection\Collection;
-use BoundedContext\Contracts\Command;
+use BoundedContext\Contracts\Command\Command;
 use BoundedContext\Laravel\Command\Handler;
 use BoundedContext\Laravel\Illuminate\Projector;
 use Illuminate\Contracts\Foundation\Application;
 
-class Dispatcher implements \BoundedContext\Contracts\Dispatcher
+class Dispatcher implements \BoundedContext\Contracts\Bus\Dispatcher
 {
     private $app;
 

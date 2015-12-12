@@ -1,7 +1,7 @@
 <?php namespace BoundedContext\Laravel\Command\Handler;
 
 use BoundedContext\Collection\Collection;
-use BoundedContext\Contracts\Command;
+use BoundedContext\Contracts\Command\Command;
 use BoundedContext\Repository\Repository;
 use BoundedContext\ValueObject\Uuid;
 use Illuminate\Contracts\Foundation\Application;

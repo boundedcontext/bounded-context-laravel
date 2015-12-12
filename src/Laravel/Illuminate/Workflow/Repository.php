@@ -34,7 +34,7 @@ class Repository
 
         return new $workflow_namespace(
             $this->app->make('EventLog'),
-            $this->app->make('BoundedContext\Contracts\Dispatcher'),
+            $this->app->make('BoundedContext\Contracts\Bus\Dispatcher'),
             new Uuid($workflow_row->last_id)
         );
     }
