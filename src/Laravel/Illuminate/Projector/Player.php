@@ -60,7 +60,9 @@ class Player
         foreach($this->projectors as $projector)
         {
             $p = $this->projector_repository->get($projector);
-            $p->reset();
+            $p->reset(
+                $this->app->make('BoundedContext\Contracts\Generator\Uuid')
+            );
             $this->projector_repository->save($p);
         }
 

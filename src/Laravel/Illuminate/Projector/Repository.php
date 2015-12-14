@@ -3,9 +3,9 @@
 namespace BoundedContext\Laravel\Illuminate\Projector;
 
 use BoundedContext\Contracts\Projection\Projector;
+use BoundedContext\Laravel\ValueObject\Uuid;
 use Illuminate\Contracts\Foundation\Application;
 
-use BoundedContext\ValueObject\Uuid;
 use BoundedContext\ValueObject\Version;
 
 class Repository

@@ -3,11 +3,11 @@
 namespace BoundedContext\Laravel\Illuminate\Projection;
 
 use BoundedContext\Collection\Collection;
+use BoundedContext\Contracts\ValueObject\Identifier;
 use BoundedContext\Laravel\Item\Upgrader;
 use BoundedContext\Log\Item;
 use BoundedContext\Map\Map;
 use BoundedContext\Projection\AggregateCollections\Projection;
-use BoundedContext\ValueObject\Uuid;
 
 class AggregateCollections extends AbstractProjection implements Projection
 {
@@ -15,7 +15,7 @@ class AggregateCollections extends AbstractProjection implements Projection
     protected $event_log_table = 'event_log';
     protected $event_stream_table = 'event_stream';
 
-    public function exists(Uuid $id)
+    public function exists(Identifier $id)
     {
         $item_count = $this->query()
             ->where('aggregate_id', $id->serialize())
@@ -24,7 +24,7 @@ class AggregateCollections extends AbstractProjection implements Projection
         return $item_count > 0;
     }
 
-    public function get(Uuid $id)
+    public function get(Identifier $id)
     {
         $serialized_items = $this->query()
             ->join(
@@ -45,8 +45,9 @@ class AggregateCollections extends AbstractProjection implements Projection
         $items = new Collection();
 
         $upgrader = new Upgrader(new Map(
-            $this->application->make('config')->get('bounded-context.events')
-        ));
+            $this->application->make('config')->get('bounded-context.events'),
+            $this->application->make('BoundedContext\Contracts\Generator\Uuid')
+        ), $this->application->make('BoundedContext\Contracts\Generator\Uuid'));
 
         foreach($serialized_items as $serialized_item)
         {

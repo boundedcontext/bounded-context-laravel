@@ -3,23 +3,27 @@
 namespace BoundedContext\Laravel\Item;
 
 use BoundedContext\Collection\Collectable;
+use BoundedContext\Contracts\ValueObject\Identifier;
+use BoundedContext\Contracts\Generator\Identifier as IdentifierGenerator;
+use BoundedContext\Laravel\ValueObject\Uuid;
 use BoundedContext\Log\Item;
 use BoundedContext\Map\Map;
 use BoundedContext\Schema\Schema;
 use BoundedContext\ValueObject\DateTime;
-use BoundedContext\ValueObject\Uuid;
 use BoundedContext\ValueObject\Version;
 
 class Upgrader
 {
     private $class_map;
+    private $generator;
 
-    public function __construct(Map $class_map)
+    public function __construct(Map $class_map, IdentifierGenerator $generator)
     {
         $this->class_map = $class_map;
+        $this->generator = $generator;
     }
 
-    private function get_upgrader_class(Uuid $type_id)
+    private function get_upgrader_class(Identifier $type_id)
     {
         $class = $this->class_map->get_class($type_id);
 
@@ -68,7 +72,7 @@ class Upgrader
         $upgrader->run();
 
         return new Item(
-            Uuid::generate(),
+            $this->generator->generate(),
             $type_id,
             new DateTime,
             $upgrader->version(),

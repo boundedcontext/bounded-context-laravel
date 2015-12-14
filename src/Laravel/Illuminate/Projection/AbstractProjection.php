@@ -2,6 +2,7 @@
 
 namespace BoundedContext\Laravel\Illuminate\Projection;
 
+use BoundedContext\Contracts\Generator\Identifier as IdentifierGenerator;
 use Illuminate\Contracts\Foundation\Application;
 
 abstract class AbstractProjection
@@ -16,7 +17,7 @@ abstract class AbstractProjection
         $this->connection = $app->make('db');
     }
 
-    public function reset()
+    public function reset(IdentifierGenerator $generator)
     {
         $this->query()->delete();
     }

@@ -2,13 +2,10 @@
 
 namespace BoundedContext\Laravel\Illuminate;
 
+use BoundedContext\Contracts\ValueObject\Identifier;
 use BoundedContext\Laravel\Item\Upgrader;
-use Illuminate\Database\Connection;
 use Illuminate\Database\DatabaseManager;
-use Illuminate\Database\Query\Builder;
-
 use BoundedContext\Collection\Collectable;
-use BoundedContext\ValueObject\Uuid;
 use BoundedContext\Collection\Collection;
 
 class Log implements \BoundedContext\Contracts\Sourced\Log
@@ -45,7 +42,7 @@ class Log implements \BoundedContext\Contracts\Sourced\Log
             ->delete();
     }
 
-    private function get_starting_id(Uuid $id)
+    private function get_starting_id(Identifier $id)
     {
         if($id->is_null())
         {
@@ -64,7 +61,7 @@ class Log implements \BoundedContext\Contracts\Sourced\Log
         return $query->log_id;
     }
 
-    private function get_serialized_items(Uuid $id, $limit)
+    private function get_serialized_items(Identifier $id, $limit)
     {
         $starting_id = $this->get_starting_id($id);
 
@@ -83,7 +80,7 @@ class Log implements \BoundedContext\Contracts\Sourced\Log
         return $items;
     }
 
-    public function get_collection(Uuid $id, $limit = 1000)
+    public function get_collection(Identifier $id, $limit = 1000)
     {
         $serialized_items = $this->get_serialized_items($id, $limit);
 

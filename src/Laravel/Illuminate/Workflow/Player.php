@@ -55,7 +55,9 @@ class Player
         foreach($this->workflows as $workflow)
         {
             $w = $this->workflow_repository->get($workflow);
-            $w->reset();
+            $w->reset(
+                $this->app->make('BoundedContext\Contracts\Generator\Uuid')
+            );
             $this->workflow_repository->save($w);
         }
 

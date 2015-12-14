@@ -3,7 +3,7 @@
 use BoundedContext\Collection\Collection;
 use BoundedContext\Contracts\Command\Command;
 use BoundedContext\Repository\Repository;
-use BoundedContext\ValueObject\Uuid;
+use BoundedContext\Laravel\ValueObject\Uuid;
 use Illuminate\Contracts\Foundation\Application;
 
 class Factory
@@ -26,10 +26,12 @@ class Factory
         $aggregate_class = $aggregate_namespace . "Aggregate";
         $state_class = $aggregate_namespace . "State";
 
+        $generator = $this->app->make('BoundedContext\Contracts\Generator\Uuid');
+
         $repository = new Repository(
             $this->app->make('EventLog'),
             $this->app->make('BoundedContext\Projection\AggregateCollections\Projection'),
-            new $aggregate_class(Uuid::null(), new $state_class, new Collection())
+            new $aggregate_class($generator->null(), new $state_class, new Collection())
         );
 
         $namespaced_handler_class = '\\' . $handler_class;
