@@ -5,7 +5,7 @@ namespace BoundedContext\Laravel\Illuminate;
 use BoundedContext\Contracts\ValueObject\Identifier;
 use BoundedContext\Laravel\Item\Upgrader;
 use Illuminate\Database\DatabaseManager;
-use BoundedContext\Collection\Collectable;
+use BoundedContext\Contracts\Core\Collectable;
 use BoundedContext\Collection\Collection;
 
 class Log implements \BoundedContext\Contracts\Sourced\Log

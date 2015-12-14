@@ -2,7 +2,7 @@
 
 namespace BoundedContext\Laravel\Item;
 
-use BoundedContext\Collection\Collectable;
+use BoundedContext\Contracts\Core\Collectable;
 use BoundedContext\Contracts\ValueObject\Identifier;
 use BoundedContext\Contracts\Generator\Identifier as IdentifierGenerator;
 use BoundedContext\Laravel\ValueObject\Uuid;
