@@ -2,10 +2,10 @@
 
 namespace BoundedContext\Laravel\Illuminate;
 
+use BoundedContext\Contracts\Event\Event;
 use BoundedContext\Contracts\ValueObject\Identifier;
 use BoundedContext\Laravel\Item\Upgrader;
 use Illuminate\Database\DatabaseManager;
-use BoundedContext\Contracts\Core\Collectable;
 use BoundedContext\Collection\Collection;
 use BoundedContext\Contracts\Collection\Collection as CollectionContract;
 
@@ -97,7 +97,7 @@ class Log implements \BoundedContext\Contracts\Sourced\Log
         return $items;
     }
 
-    public function append(Collectable $event)
+    public function append(Event $event)
     {
         $item = $this->upgrader->generate($event);
 
