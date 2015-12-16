@@ -2,7 +2,7 @@
 
 namespace BoundedContext\Laravel\Bus;
 
-use BoundedContext\Collection\Collection;
+use BoundedContext\Contracts\Collection\Collection;
 use BoundedContext\Contracts\Command\Command;
 use BoundedContext\Laravel\Command\Handler;
 use BoundedContext\Laravel\Illuminate\Projector;

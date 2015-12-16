@@ -7,6 +7,7 @@ use BoundedContext\Laravel\Item\Upgrader;
 use Illuminate\Database\DatabaseManager;
 use BoundedContext\Contracts\Core\Collectable;
 use BoundedContext\Collection\Collection;
+use BoundedContext\Contracts\Collection\Collection as CollectionContract;
 
 class Log implements \BoundedContext\Contracts\Sourced\Log
 {
@@ -110,7 +111,7 @@ class Log implements \BoundedContext\Contracts\Sourced\Log
         ]);
     }
 
-    public function append_collection(Collection $events)
+    public function append_collection(CollectionContract $events)
     {
         foreach($events as $event)
         {
