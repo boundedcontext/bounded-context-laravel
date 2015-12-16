@@ -1,21 +1,16 @@
 <?php namespace BoundedContext\Laravel\ValueObject;
 
-use BoundedContext\Contracts\ValueObject\ValueObject;
+use BoundedContext\ValueObject\AbstractValueObject;
 use Rhumsaa\Uuid\Uuid as RhumsaaUuid;
 use BoundedContext\Contracts\ValueObject\Identifier;
 
-class Uuid implements Identifier
+class Uuid extends AbstractValueObject implements Identifier
 {
     private $uuid;
 
     public function __construct($uuid)
     {
         $this->uuid = RhumsaaUuid::fromString($uuid);
-    }
-
-    public function equals(ValueObject $other)
-    {
-        return ($this->serialize() == $other->serialize());
     }
 
     public function is_null()
