@@ -2,6 +2,7 @@
 
 namespace BoundedContext\Laravel\Illuminate\Workflow;
 
+use BoundedContext\Laravel\ValueObject\NamespaceIdentifier;
 use Illuminate\Contracts\Foundation\Application;
 
 class Player
@@ -52,13 +53,17 @@ class Player
     {
         $this->connection->beginTransaction();
 
-        foreach($this->workflows as $workflow)
+        foreach($this->workflows as $workflow_identifier)
         {
-            $w = $this->workflow_repository->get($workflow);
-            $w->reset(
+            $workflow = $this->workflow_repository->get(
+                new NamespaceIdentifier($workflow_identifier)
+            );
+
+            $workflow->reset(
                 $this->app->make('BoundedContext\Contracts\Generator\Uuid')
             );
-            $this->workflow_repository->save($w);
+
+            $this->workflow_repository->save($workflow);
         }
 
         $this->connection->commit();
@@ -68,11 +73,15 @@ class Player
     {
         $this->connection->beginTransaction();
 
-        foreach($this->workflows as $workflow)
+        foreach($this->workflows as $workflow_identifier)
         {
-            $w = $this->workflow_repository->get($workflow);
-            $w->play();
-            $this->workflow_repository->save($w);
+            $workflow = $this->workflow_repository->get(
+                new NamespaceIdentifier($workflow_identifier)
+            );
+
+            $workflow->play();
+
+            $this->workflow_repository->save($workflow);
         }
 
         $this->connection->commit();

@@ -1,17 +1,26 @@
-<?php
+<?php namespace BoundedContext\Laravel\Illuminate\Workflow;
 
-namespace BoundedContext\Laravel\Illuminate\Workflow;
+use BoundedContext\Contracts\ValueObject\Identifier;
 use BoundedContext\Contracts\Workflow\Workflow;
-use BoundedContext\Laravel\ValueObject\Uuid;
 use Illuminate\Contracts\Foundation\Application;
 
-class Repository
+class Repository implements \BoundedContext\Contracts\Workflow\Repository
 {
+    private $app;
+    private $connection;
+    private $table;
+    private $generator;
+
     public function __construct(Application $app)
     {
         $this->app = $app;
         $this->connection = $app->make('db');
-        $this->table = $app->make('config')->get('bounded-context.database.tables.workflows');
+
+        $this->table = $app->make('config')->get(
+            'bounded-context.database.tables.workflows'
+        );
+
+        $this->generator = $app->make('BoundedContext\Contracts\Generator\Uuid');
     }
 
     protected function query()
@@ -19,31 +28,33 @@ class Repository
         return $this->connection->table($this->table);
     }
 
-    public function get($workflow_namespace)
+    public function get(Identifier $namespace)
     {
-        $workflow_row = $this->query()
+        $row = $this->query()
             ->sharedLock()
-            ->where('name', $workflow_namespace)
+            ->where('name', $namespace->serialize())
             ->first();
 
-        if(!$workflow_row)
+        if(!$row)
         {
-            throw new \Exception("The Projector [$workflow_namespace] does not exist.");
+            throw new \Exception("The Projector [".$namespace->serialize()."] does not exist.");
         }
 
-        return new $workflow_namespace(
+        $namespace_class = $namespace->serialize();
+
+        return new $namespace_class(
             $this->app->make('EventLog'),
             $this->app->make('BoundedContext\Contracts\Bus\Dispatcher'),
-            new Uuid($workflow_row->last_id)
+            $this->generator->string($row->last_id)
         );
     }
 
     public function save(Workflow $workflow)
     {
-        $workflow_name = get_class($workflow);
+        $class_name = get_class($workflow);
 
         $this->query()
-            ->where('name', $workflow_name)
+            ->where('name', $class_name)
             ->update(array(
                 'last_id' => $workflow->last_id()->serialize()
             ));
