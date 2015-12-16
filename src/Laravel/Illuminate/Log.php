@@ -14,6 +14,7 @@ class Log implements \BoundedContext\Contracts\Sourced\Log
     private $connection;
     private $upgrader;
     private $table;
+    private $stream_table;
 
     public function __construct(
         Upgrader $upgrader,

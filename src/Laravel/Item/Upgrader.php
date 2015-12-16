@@ -10,7 +10,7 @@ use BoundedContext\Log\Item;
 use BoundedContext\Map\Map;
 use BoundedContext\Schema\Schema;
 use BoundedContext\ValueObject\DateTime;
-use BoundedContext\ValueObject\Version;
+use BoundedContext\ValueObject\Integer;
 
 class Upgrader
 {
@@ -43,7 +43,7 @@ class Upgrader
 
         $upgraded_serialized_class = new $upgrader_class(
             new Schema($serialized_item['payload']),
-            new Version($serialized_item['version'])
+            new Integer($serialized_item['version'])
         );
 
         $upgraded_serialized_class->run();
@@ -66,7 +66,7 @@ class Upgrader
 
         $upgrader = new $upgrader_class(
             new Schema(),
-            new Version()
+            new Integer()
         );
 
         $upgrader->run();
@@ -86,7 +86,7 @@ class Upgrader
 
         $upgrader = new $upgrader_class(
             new Schema(),
-            new Version()
+            new Integer()
         );
 
         $upgrader->run();

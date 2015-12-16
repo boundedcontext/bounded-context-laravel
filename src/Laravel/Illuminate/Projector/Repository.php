@@ -6,7 +6,7 @@ use BoundedContext\Contracts\Projection\Projector;
 use BoundedContext\Laravel\ValueObject\Uuid;
 use Illuminate\Contracts\Foundation\Application;
 
-use BoundedContext\ValueObject\Version;
+use BoundedContext\ValueObject\Integer;
 
 class Repository
 {
@@ -40,8 +40,8 @@ class Repository
             $this->app->make('EventLog'),
             $this->app->make($projection_namespace),
             new Uuid($projector_row->last_id),
-            new Version($projector_row->version),
-            new Version($projector_row->processed)
+            new Integer($projector_row->version),
+            new Integer($projector_row->processed)
         );
 
         return $projector;
