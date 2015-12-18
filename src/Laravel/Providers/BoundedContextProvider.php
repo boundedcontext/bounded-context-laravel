@@ -44,6 +44,11 @@ class BoundedContextProvider extends ServiceProvider
             'BoundedContext\Laravel\Generator\Uuid'
         );
 
+        $this->app->bind(
+            'BoundedContext\Contracts\Projection\Factory',
+            'BoundedContext\Laravel\Illuminate\Projection\Factory'
+        );
+
         $projection_types = Config::get('bounded-context.projections');
 
         if(!$projection_types)

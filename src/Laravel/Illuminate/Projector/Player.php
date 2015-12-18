@@ -1,6 +1,4 @@
-<?php
-
-namespace BoundedContext\Laravel\Illuminate\Projector;
+<?php namespace BoundedContext\Laravel\Illuminate\Projector;
 
 use Illuminate\Contracts\Foundation\Application;
 
@@ -11,9 +9,11 @@ class Player
         $this->app = $app;
 
         $this->connection = $app->make('db');
-        $this->table = $app->make('config')->get('bounded-context.database.tables.projectors');
-        $this->projector_repository = new Repository($app);
+        $this->table = $app->make('config')->get(
+            'bounded-context.database.tables.projectors'
+        );
 
+        $this->projector_repository = new Repository($app);
         $this->projectors = [];
 
         $this->generate_projectors($type);
@@ -60,9 +60,11 @@ class Player
         foreach($this->projectors as $projector)
         {
             $p = $this->projector_repository->get($projector);
+
             $p->reset(
                 $this->app->make('BoundedContext\Contracts\Generator\Uuid')
             );
+
             $this->projector_repository->save($p);
         }
 
@@ -76,7 +78,9 @@ class Player
         foreach($this->projectors as $projector)
         {
             $p = $this->projector_repository->get($projector);
+
             $p->play();
+
             $this->projector_repository->save($p);
         }
 

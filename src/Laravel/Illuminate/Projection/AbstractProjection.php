@@ -1,6 +1,4 @@
-<?php
-
-namespace BoundedContext\Laravel\Illuminate\Projection;
+<?php namespace BoundedContext\Laravel\Illuminate\Projection;
 
 use Illuminate\Contracts\Foundation\Application;
 

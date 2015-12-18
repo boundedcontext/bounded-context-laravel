@@ -73,10 +73,10 @@ class Player
     {
         $this->connection->beginTransaction();
 
-        foreach($this->workflows as $workflow_identifier)
+        foreach($this->workflows as $namespace)
         {
             $workflow = $this->workflow_repository->get(
-                new NamespaceIdentifier($workflow_identifier)
+                new NamespaceIdentifier($namespace)
             );
 
             $workflow->play();

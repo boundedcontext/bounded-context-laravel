@@ -12,7 +12,7 @@ use BoundedContext\Schema\Schema;
 use BoundedContext\ValueObject\DateTime;
 use BoundedContext\ValueObject\Integer;
 
-class Upgrader
+class Factory
 {
     private $class_map;
     private $generator;
@@ -23,15 +23,18 @@ class Upgrader
         $this->generator = $generator;
     }
 
-    private function get_upgrader_class(Identifier $type_id)
+    public function existing(Identifier $id, Identifier $type_id, DateTime $occurred_at, Schema $schema, Integer $version)
     {
-        $class = $this->class_map->get_class($type_id);
+        $upgrader = $this->upgrader_factory->get($schema, $version);
+        $upgrader->run();
 
-        $aggregate_prefix = substr($class, 0, strrpos($class, "\\"));
-        $upgrader_suffix = substr($class, strrpos($class, "\\"));
-        $upgrader_class = $aggregate_prefix . '\\Upgrader' . $upgrader_suffix;
-
-        return $upgrader_class;
+        return new Item(
+            $id,
+            $type_id,
+            $occurred_at,
+            $upgraded_serialized_class->version(),
+            $class::deserialize($upgrader->schema())
+        );
     }
 
     public function deserialize($serialized_item)

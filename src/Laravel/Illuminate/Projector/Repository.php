@@ -1,20 +1,34 @@
-<?php
+<?php namespace BoundedContext\Laravel\Illuminate\Projector;
 
-namespace BoundedContext\Laravel\Illuminate\Projector;
-
-use BoundedContext\Contracts\Projection\Projector;
-use BoundedContext\Laravel\ValueObject\Uuid;
 use Illuminate\Contracts\Foundation\Application;
-
+use BoundedContext\Contracts\Projector\Projector;
+use BoundedContext\Contracts\ValueObject\Identifier;
 use BoundedContext\ValueObject\Integer;
 
-class Repository
+class Repository implements \BoundedContext\Contracts\Projector\Repository
 {
+    private $app;
+    private $connection;
+    private $table;
+
+    private $projector_factory;
+    private $identifier_factory;
+
     public function __construct(Application $app)
     {
         $this->app = $app;
         $this->connection = $app->make('db');
-        $this->table = $app->make('config')->get('bounded-context.database.tables.projectors');
+        $this->table = $app->make('config')->get(
+            'bounded-context.database.tables.projectors'
+        );
+
+        $this->projector_factory = $app->make(
+            'BoundedContext\Contracts\Projector\Factory'
+        );
+
+        $this->identifier_factory = $app->make(
+            'BoundedContext\Contracts\Factory\Uuid'
+        );
     }
 
     protected function query()
@@ -22,41 +36,33 @@ class Repository
         return $this->connection->table($this->table);
     }
 
-    public function get($projector_namespace)
+    public function get(Identifier $namespace)
     {
-        $projector_row = $this->query()
+        $row = $this->query()
             ->sharedLock()
-            ->where('name', $projector_namespace)
+            ->where('name', $namespace->serialize())
             ->first();
 
-        if(!$projector_row)
+        if(!$row)
         {
-            throw new \Exception("The Projector [$projector_namespace] does not exist.");
+            throw new \Exception("The Projector [".$namespace->serialize()."] does not exist.");
         }
 
-        $projection_namespace = preg_replace('/Projector$/', 'Projection', $projector_namespace);
-
-        $projector = new $projector_namespace(
-            $this->app->make('EventLog'),
-            $this->app->make($projection_namespace),
-            new Uuid($projector_row->last_id),
-            new Integer($projector_row->version),
-            new Integer($projector_row->processed)
+        return $this->projector_factory->create(
+            $namespace,
+            new Snapshot(
+                $this->identifier_factory->string($row->last_id),
+                new Integer($row->version)
+            )
         );
-
-        return $projector;
     }
 
     public function save(Projector $projector)
     {
-        $projector_name = get_class($projector);
+        $class_name = get_class($projector);
 
         $this->query()
-            ->where('name', $projector_name)
-            ->update(array(
-                'last_id' => $projector->last_id()->serialize(),
-                'version' => $projector->version()->serialize(),
-                'processed' => $projector->count()->serialize()
-            ));
+            ->where('name', $class_name)
+            ->update($projector->snapshot()->serialize());
     }
 }

@@ -32,15 +32,18 @@ class Log implements \BoundedContext\Contracts\Sourced\Log
 
     public function query()
     {
-        return $this->connection->table($this->table);
+        return $this->connection
+            ->table($this->table);
     }
 
     public function reset()
     {
-        $this->connection->table($this->table)
+        $this->connection
+            ->table($this->table)
             ->delete();
 
-        $this->connection->table($this->stream_table)
+        $this->connection
+            ->table($this->stream_table)
             ->delete();
     }
 
@@ -101,6 +104,7 @@ class Log implements \BoundedContext\Contracts\Sourced\Log
     public function append(Event $event)
     {
         $item = $this->upgrader->generate($event);
+        // $item = $this->item_factory->new($event);
 
         $id = $this->connection->table($this->table)->insertGetId(array(
             'item' => json_encode($item->serialize())
