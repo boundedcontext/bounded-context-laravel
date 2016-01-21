@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateTableEventLog extends Migration
+class CreateTableEventSnapshotLog extends Migration
 {
     /**
      * Run the migrations.
@@ -12,9 +12,9 @@ class CreateTableEventLog extends Migration
      */
     public function up()
     {
-        Schema::create('event_log', function (Blueprint $table) {
+        Schema::create('event_snapshot_log', function (Blueprint $table) {
             $table->increments('id');
-            $table->mediumText('item');
+            $table->mediumText('snapshot');
         });
     }
 
@@ -25,6 +25,6 @@ class CreateTableEventLog extends Migration
      */
     public function down()
     {
-        Schema::drop('event_log');
+        Schema::drop('event_snapshot_log');
     }
 }

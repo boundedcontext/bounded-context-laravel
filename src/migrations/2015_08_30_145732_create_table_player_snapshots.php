@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateTableCommandLog extends Migration
+class CreateTablePlayerSnapshots extends Migration
 {
     /**
      * Run the migrations.
@@ -12,9 +12,11 @@ class CreateTableCommandLog extends Migration
      */
     public function up()
     {
-        Schema::create('command_log', function (Blueprint $table) {
+        Schema::create('player_snapshots', function (Blueprint $table) {
             $table->increments('id');
-            $table->mediumText('item');
+            $table->string('name')->unique();
+            $table->integer('version')->default(0);
+            $table->string('last_id', 36)->default('00000000-0000-0000-0000-000000000000');
         });
     }
 
@@ -25,6 +27,6 @@ class CreateTableCommandLog extends Migration
      */
     public function down()
     {
-        Schema::drop('command_log');
+        Schema::drop('player_snapshots');
     }
 }

@@ -20,7 +20,19 @@ class BoundedContextProvider extends ServiceProvider
     public function boot()
     {
         $this->publishes([
-            __DIR__.'/../../config/bounded-context.php' => config_path('bounded-context.php'),
+            __DIR__.'/../../config/events.php' => config_path('events.php'),
+        ]);
+
+        $this->publishes([
+            __DIR__.'/../../config/commands.php' => config_path('commands.php'),
+        ]);
+
+        $this->publishes([
+            __DIR__.'/../../config/projections.php' => config_path('projections.php'),
+        ]);
+
+        $this->publishes([
+            __DIR__.'/../../config/players.php' => config_path('players.php'),
         ]);
 
         $this->publishes([
@@ -39,9 +51,25 @@ class BoundedContextProvider extends ServiceProvider
             'BoundedContext\Contracts\Bus\Dispatcher',
             'BoundedContext\Laravel\Bus\Dispatcher'
         );
+
         $this->app->bind(
-            'BoundedContext\Contracts\Generator\Uuid',
+            'BoundedContext\Contracts\Generator\Identifier',
             'BoundedContext\Laravel\Generator\Uuid'
+        );
+
+        $this->app->bind(
+            'BoundedContext\Contracts\Generator\DateTime',
+            'BoundedContext\Laravel\Generator\DateTime'
+        );
+
+        $this->app->bind(
+            'BoundedContext\Contracts\Event\Version\Factory',
+            'BoundedContext\Laravel\Event\Version\Factory'
+        );
+
+        $this->app->bind(
+            'BoundedContext\Contracts\Event\Snapshot\Factory',
+            'BoundedContext\Laravel\Event\Snapshot\Factory'
         );
 
         $this->app->bind(

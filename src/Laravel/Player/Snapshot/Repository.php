@@ -1,19 +1,23 @@
-<?php namespace BoundedContext\Laravel\Player;
+<?php namespace BoundedContext\Laravel\Player\Snapshot;
 
-use BoundedContext\Contracts\Player\Player;
+use BoundedContext\Contracts\Player\Snapshot\Snapshot;
 use BoundedContext\Contracts\ValueObject\Identifier;
 use BoundedContext\Player\Snapshot\Factory;
+
 use Illuminate\Contracts\Foundation\Application;
 
-class Repository implements \BoundedContext\Contracts\Player\Repository
+class Repository implements \BoundedContext\Contracts\Player\Snapshot\Repository
 {
     private $app;
     private $connection;
     private $table;
-    private $player_factory;
-    private $snapshot_factory;
 
-    public function __construct(Application $app, Factory $snapshot_factory)
+    protected $snapshot_factory;
+
+    public function __construct(
+        Application $app,
+        Factory $snapshot_factory
+    )
     {
         $this->app = $app;
         $this->connection = $app->make('db');
@@ -21,8 +25,6 @@ class Repository implements \BoundedContext\Contracts\Player\Repository
         $this->table = $app->make('config')->get(
             'bounded-context.database.tables.players'
         );
-
-        $this->player_factory = $app->make('BoundedContext\Laravel\Player\Factory');
 
         $this->snapshot_factory = $snapshot_factory;
     }
@@ -44,13 +46,10 @@ class Repository implements \BoundedContext\Contracts\Player\Repository
             throw new \Exception("The Projector [".$namespace->serialize()."] does not exist.");
         }
 
-        return $this->player_factory->id(
-            $namespace,
-            $this->snapshot_factory->make($row)
-        );
+        return $this->snapshot_factory->make($row);
     }
 
-    public function save(Player $player)
+    public function save(Snapshot $snapshot)
     {
         $class_name = get_class($player);
 

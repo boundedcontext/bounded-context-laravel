@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateTableProjectionsCoreAggregateCollections extends Migration
+class CreateTableCommandSnapshotLog extends Migration
 {
     /**
      * Run the migrations.
@@ -12,9 +12,9 @@ class CreateTableProjectionsCoreAggregateCollections extends Migration
      */
     public function up()
     {
-        Schema::create('projections_core_aggregate_collections', function (Blueprint $table) {
-            $table->integer('log_id')->unique();
-            $table->string('aggregate_id', 36);
+        Schema::create('command_snapshot_log', function (Blueprint $table) {
+            $table->increments('id');
+            $table->mediumText('snapshot');
         });
     }
 
@@ -25,6 +25,6 @@ class CreateTableProjectionsCoreAggregateCollections extends Migration
      */
     public function down()
     {
-        Schema::drop('projections_core_aggregate_collections');
+        Schema::drop('command_snapshot_log');
     }
 }

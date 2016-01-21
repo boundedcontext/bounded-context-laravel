@@ -2,7 +2,7 @@
 
 use BoundedContext\Contracts\ValueObject\Identifier;
 use BoundedContext\Contracts\Generator\Identifier as IdentifierGenerator;
-use BoundedContext\Player\Snapshot;
+use BoundedContext\Player\Snapshot\Snapshot;
 use Illuminate\Contracts\Foundation\Application;
 
 class Factory
@@ -30,7 +30,7 @@ class Factory
             $property_name = $property->getName();
             $property_class = $property->class;
 
-            if($property_class === Snapshot::class)
+            if($property_class === Snapshot\Snapshot::class)
             {
                 $args[$property_name] = $snapshot;
             } else

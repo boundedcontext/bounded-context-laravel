@@ -1,43 +1,49 @@
-<?php
-
-namespace BoundedContext\Laravel\Bus;
+<?php namespace BoundedContext\Laravel\Bus;
 
 use BoundedContext\Contracts\Collection\Collection;
 use BoundedContext\Contracts\Command\Command;
 use BoundedContext\Contracts\Command\Log;
-use BoundedContext\Laravel\Command\Handler\Factory;
-use BoundedContext\Laravel\Illuminate\Player\CollectionPlayer;
-use BoundedContext\Laravel\Illuminate\Projector;
+use BoundedContext\Laravel\Command\Handler\Factory as HandlerFactory;
+use BoundedContext\Contracts\Event\Snapshot\Factory as EventSnapshotFactory;
+
 use Illuminate\Database\Connection;
 
 class Dispatcher implements \BoundedContext\Contracts\Bus\Dispatcher
 {
     private $connection;
     private $log;
-    private $factory;
-    private $collection_player;
+    private $handler_factory;
+    private $event_snapshot_factory;
 
     public function __construct(
         Connection $connection,
         Log $log,
-        Factory $factory,
-        CollectionPlayer $collection_player)
+        HandlerFactory $handler_factory,
+        EventSnapshotFactory $event_snapshot_factory
+    )
     {
         $this->connection = $connection;
         $this->log = $log;
-        $this->factory = $factory;
-        $this->collection_player = $collection_player;
+        $this->handler_factory = $handler_factory;
+        $this->event_snapshot_factory = $event_snapshot_factory;
     }
 
     private function run(Command $command)
     {
-        $handler = $this->factory->command($command);
+        $handler = $this->handler_factory->command($command);
+        $handler->handle($command);
 
-        $this->collection_player->play(
-            $handler->handle($command)
+        $collection_player = $this->player_collection_repository->handler(
+            $handler
         );
 
-        $this->log->append($command);
+        $this->player_collection_repository->save(
+            $collection_player->play()
+        );
+
+        $this->log->append(
+            $this->event_snapshot_factory->event($command)
+        );
     }
 
     public function dispatch(Command $command)

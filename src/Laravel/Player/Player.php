@@ -1,7 +1,6 @@
 <?php namespace BoundedContext\Laravel\Illuminate\Player;
 
 use BoundedContext\Contracts\Collection\Collection;
-use BoundedContext\Contracts\Generator\Identifier;
 use BoundedContext\Contracts\Player\Repository;
 
 class CollectionPlayer
@@ -13,15 +12,13 @@ class CollectionPlayer
         $this->repository = $repository;
     }
 
-    public function reset(Collection $namespaces, Identifier $generator)
+    public function reset(Collection $namespaces)
     {
         foreach($namespaces as $ns)
         {
             $player = $this->repository->get($ns);
 
-            $player->reset(
-                $generator
-            );
+            $player->reset();
 
             $this->repository->save($player);
         }
