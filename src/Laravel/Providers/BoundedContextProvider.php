@@ -45,6 +45,7 @@ class BoundedContextProvider extends ServiceProvider
      *
      * @return void
      */
+
     public function register()
     {
         $this->app->bind(
@@ -77,9 +78,9 @@ class BoundedContextProvider extends ServiceProvider
             'BoundedContext\Laravel\Illuminate\Projection\Factory'
         );
 
-        $projection_types = Config::get('bounded-context.projections');
+        $projection_types = Config::get('projections');
 
-        if(!$projection_types)
+        if(is_null($projection_types))
         {
             return;
         }
@@ -88,6 +89,17 @@ class BoundedContextProvider extends ServiceProvider
         {
             foreach($projection_type as $projection => $implemented_projection)
             {
+                $queryable =
+                    '\\' .
+                    chop($projection, 'Projection') .
+                    "Queryable";
+
+                $implemented_queryable =
+                    '\\' .
+                    chop($implemented_projection, 'Projection') .
+                    "Queryable";
+
+                $this->app->singleton($queryable, $implemented_queryable);
                 $this->app->singleton($projection, $implemented_projection);
             }
         }

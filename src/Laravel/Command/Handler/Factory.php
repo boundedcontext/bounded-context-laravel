@@ -14,6 +14,8 @@ class Factory
 
     public function command(Command $command)
     {
+        $command_class = get_class($command);
+
         $handler_class =
             '\\' .
             substr(
