@@ -3,12 +3,12 @@
 namespace BoundedContext\Laravel\Providers;
 
 use BoundedContext\Laravel\Illuminate;
-use BoundedContext\Map\Map;
+use BoundedContext\Laravel\Command\Log as CommandLog;
+use BoundedContext\Laravel\Event\Log as EventLog;
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
+
 
 class BoundedContextProvider extends ServiceProvider
 {
@@ -48,6 +48,26 @@ class BoundedContextProvider extends ServiceProvider
 
     public function register()
     {
+        $this->app->singleton('BoundedContext\Contracts\Event\Log', function($app)
+        {
+            return new EventLog(
+                $this->app->make('BoundedContext\Contracts\Event\Snapshot\Factory'),
+                $this->app->make('db'),
+                'event_snapshot_log',
+                'event_snapshot_stream'
+            );
+        });
+
+        $this->app->singleton('BoundedContext\Contracts\Command\Log', function($app)
+        {
+            return new CommandLog(
+                $this->app->make('BoundedContext\Contracts\Event\Snapshot\Factory'),
+                $this->app->make('db'),
+                'command_snapshot_log',
+                'command_snapshot_stream'
+            );
+        });
+
         $this->app->bind(
             'BoundedContext\Contracts\Bus\Dispatcher',
             'BoundedContext\Laravel\Bus\Dispatcher'
