@@ -1,35 +1,21 @@
 <?php namespace BoundedContext\Laravel\Illuminate\Projection;
 
-use BoundedContext\Contracts\Projection\Queryable;
 use Illuminate\Contracts\Foundation\Application;
 
-abstract class AbstractProjection
+abstract class AbstractQueryable
 {
     protected $application;
     protected $connection;
-    protected $queryable;
     protected $table = 'projection_table';
 
-    public function __construct(Application $app, Queryable $queryable)
+    public function __construct(Application $app)
     {
         $this->application = $app;
         $this->connection = $app->make('db');
-
-        $this->queryable = $queryable;
-    }
-
-    public function reset()
-    {
-        $this->query()->delete();
     }
 
     protected function query()
     {
         return $this->connection->table($this->table);
-    }
-
-    public function queryable()
-    {
-        return $this->queryable;
     }
 }

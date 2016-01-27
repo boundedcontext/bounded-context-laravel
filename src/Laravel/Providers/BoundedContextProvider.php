@@ -6,6 +6,8 @@ use BoundedContext\Laravel\Illuminate;
 use BoundedContext\Laravel\Command\Log as CommandLog;
 use BoundedContext\Laravel\Event\Log as EventLog;
 
+use BoundedContext\Laravel\Player\Factory;
+use BoundedContext\Map\Map;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
 
@@ -98,6 +100,11 @@ class BoundedContextProvider extends ServiceProvider
             'BoundedContext\Laravel\Illuminate\Projection\Factory'
         );
 
+        $this->app->bind(
+            'BoundedContext\Contracts\Player\Snapshot\Repository',
+            'BoundedContext\Laravel\Player\Snapshot\Repository'
+        );
+
         $projection_types = Config::get('projections');
 
         if(is_null($projection_types))
@@ -115,13 +122,54 @@ class BoundedContextProvider extends ServiceProvider
                     "Queryable";
 
                 $implemented_queryable =
-                    '\\' .
                     chop($implemented_projection, 'Projection') .
                     "Queryable";
 
-                $this->app->singleton($queryable, $implemented_queryable);
+                $this->app
+                    ->when($implemented_projection)
+                    ->needs('BoundedContext\Contracts\Projection\Queryable')
+                    ->give($implemented_queryable);
+
                 $this->app->singleton($projection, $implemented_projection);
             }
         }
+
+        /* Players */
+        $this->app->singleton('PlayersMap', function($app)
+        {
+            $player_environments = Config::get('players');
+
+            if(is_null($player_environments))
+            {
+                return;
+            }
+
+            $players_array = [];
+            foreach($player_environments as $player_environment)
+            {
+                foreach($player_environment as $player_types)
+                {
+                    foreach($player_types as $id => $player)
+                    {
+                        $players_array[$id] = $player;
+                    }
+                }
+            }
+
+            return new Map(
+                $players_array,
+                $this->app->make('BoundedContext\Contracts\Generator\Identifier')
+            );
+        });
+
+        $this->app
+            ->when('BoundedContext\Laravel\Player\Factory')
+            ->needs('BoundedContext\Map\Map')
+            ->give('PlayersMap');
+
+        $this->app->bind(
+            'BoundedContext\Contracts\Player\Factory',
+            'BoundedContext\Laravel\Player\Factory'
+        );
     }
 }

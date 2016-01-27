@@ -1,41 +1,56 @@
 <?php namespace BoundedContext\Laravel\Player;
 
-use BoundedContext\Contracts\ValueObject\Identifier;
-use BoundedContext\Contracts\Generator\Identifier as IdentifierGenerator;
-use BoundedContext\Player\Snapshot\Snapshot;
+use BoundedContext\Map\Map;
+use BoundedContext\Contracts\Player\Snapshot\Snapshot;
+use BoundedContext\Contracts\Projection\Projection;
 use Illuminate\Contracts\Foundation\Application;
+use BoundedContext\Contracts\Sourced\Log\Log;
 
-class Factory
+class Factory implements \BoundedContext\Contracts\Player\Factory
 {
     private $app;
-    private $generator;
+    private $players_map;
 
-    public function __construct(Application $app, IdentifierGenerator $generator)
+    public function __construct(Application $app, Map $players_map)
     {
         $this->app = $app;
-        $this->generator = $generator;
+        $this->players_map = $players_map;
     }
 
-    public function id(Identifier $namespace, Snapshot $snapshot)
+    private function get_implementation_by_interface($interface_class)
     {
+        return str_replace('Projector', 'Projection', $interface_class);
+    }
+
+    public function snapshot(Snapshot $snapshot)
+    {
+        $player_class = $this->players_map->get_class($snapshot->id());
+
+        $reflection = new \ReflectionClass($player_class);
+        $parameters = $reflection->getConstructor()->getParameters();
+
         $args = [];
-
-        $class = $namespace->serialize();
-
-        $reflection = new \ReflectionClass($class);
-
-        $properties = $reflection->getProperties();
-        foreach($properties as $property)
+        foreach($parameters as $parameter)
         {
-            $property_name = $property->getName();
-            $property_class = $property->class;
+            $parameter_name = $parameter->getName();
+            $parameter_contract = $parameter->getClass()->name;
 
-            if($property_class === Snapshot\Snapshot::class)
+            if ($parameter_contract === Projection::class) {
+
+                $args[$parameter_name] = $this->app->make(
+                    $this->get_implementation_by_interface($player_class)
+                );
+
+            } elseif ($parameter_contract === Snapshot::class)
             {
-                $args[$property_name] = $snapshot;
+                $args[$parameter_name] = $snapshot;
+
+            } elseif ($parameter_contract === Log::class)
+            {
+                $args[$parameter_name] = $this->app->make('BoundedContext\Contracts\Event\Log');
             } else
             {
-                $args[$property_name] = $this->app->make($property_class);
+                $args[$parameter_name] = $this->app->make($parameter_contract);
             }
         }
 

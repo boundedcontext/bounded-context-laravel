@@ -16,17 +16,16 @@ class Repository implements \BoundedContext\Contracts\Player\Snapshot\Repository
 
     public function __construct(
         Application $app,
-        Factory $snapshot_factory
+        Factory $snapshot_factory,
+        $table = 'player_snapshots'
     )
     {
         $this->app = $app;
         $this->connection = $app->make('db');
 
-        $this->table = $app->make('config')->get(
-            'bounded-context.database.tables.players'
-        );
-
         $this->snapshot_factory = $snapshot_factory;
+
+        $this->table = $table;
     }
 
     protected function query()
@@ -34,29 +33,28 @@ class Repository implements \BoundedContext\Contracts\Player\Snapshot\Repository
         return $this->connection->table($this->table);
     }
 
-    public function get(Identifier $namespace)
+    public function get(Identifier $id)
     {
         $row = $this->query()
             ->sharedLock()
-            ->where('name', $namespace->serialize())
+            ->where('id', $id->serialize())
             ->first();
 
         if(!$row)
         {
-            throw new \Exception("The Projector [".$namespace->serialize()."] does not exist.");
+            throw new \Exception("The Player Snapshot [".$id->serialize()."] does not exist.");
         }
 
-        return $this->snapshot_factory->make($row);
+        $row_array = (array) $row;
+        return $this->snapshot_factory->make($row_array);
     }
 
     public function save(Snapshot $snapshot)
     {
-        $class_name = get_class($player);
-
         $this->query()
-            ->where('name', $class_name)
+            ->where('id', $snapshot->id()->serialize())
             ->update(
-                $player->snapshot()->serialize()
+                $snapshot->serialize()
             );
     }
 }

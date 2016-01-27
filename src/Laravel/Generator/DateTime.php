@@ -4,12 +4,12 @@ class DateTime implements \BoundedContext\Contracts\Generator\DateTime
 {
     public function now()
     {
-        return new DateTime();
+        return new \BoundedContext\ValueObject\DateTime();
     }
 
     public function string($datetime)
     {
-        return new DateTime($datetime);
+        return new \BoundedContext\ValueObject\DateTime($datetime);
     }
 
     public function generate()
