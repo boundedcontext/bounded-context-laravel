@@ -50,6 +50,21 @@ class BoundedContextProvider extends ServiceProvider
 
     public function register()
     {
+        $this->app->bind(
+            'BoundedContext\Contracts\Event\Snapshot\Factory',
+            'BoundedContext\Laravel\Event\Snapshot\Factory'
+        );
+
+        $this->app->bind(
+            'BoundedContext\Contracts\Event\Factory',
+            'BoundedContext\Laravel\Event\Factory'
+        );
+
+        $this->app->bind(
+            'BoundedContext\Contracts\Event\Version\Factory',
+            'BoundedContext\Laravel\Event\Version\Factory'
+        );
+
         $this->app->singleton('BoundedContext\Contracts\Event\Log', function($app)
         {
             return new EventLog(
@@ -71,8 +86,23 @@ class BoundedContextProvider extends ServiceProvider
         });
 
         $this->app->bind(
+            'BoundedContext\Contracts\Sourced\Aggregate\State\Snapshot\Factory',
+            'BoundedContext\Sourced\Aggregate\State\Snapshot\Factory'
+        );
+
+        $this->app->bind(
             'BoundedContext\Contracts\Sourced\Aggregate\State\Snapshot\Repository',
             'BoundedContext\Laravel\Sourced\Aggregate\State\Snapshot\Repository'
+        );
+
+        $this->app->bind(
+            'BoundedContext\Contracts\Sourced\Aggregate\State\Factory',
+            'BoundedContext\Laravel\Sourced\Aggregate\State\Factory'
+        );
+
+        $this->app->bind(
+            'BoundedContext\Contracts\Sourced\Aggregate\Factory',
+            'BoundedContext\Laravel\Sourced\Aggregate\Factory'
         );
 
         $this->app->bind(
@@ -93,16 +123,6 @@ class BoundedContextProvider extends ServiceProvider
         $this->app->bind(
             'BoundedContext\Contracts\Generator\DateTime',
             'BoundedContext\Laravel\Generator\DateTime'
-        );
-
-        $this->app->bind(
-            'BoundedContext\Contracts\Event\Version\Factory',
-            'BoundedContext\Laravel\Event\Version\Factory'
-        );
-
-        $this->app->bind(
-            'BoundedContext\Contracts\Event\Snapshot\Factory',
-            'BoundedContext\Laravel\Event\Snapshot\Factory'
         );
 
         $this->app->bind(
@@ -180,6 +200,11 @@ class BoundedContextProvider extends ServiceProvider
         $this->app->bind(
             'BoundedContext\Contracts\Player\Factory',
             'BoundedContext\Laravel\Player\Factory'
+        );
+
+        $this->app->bind(
+            'BoundedContext\Contracts\Player\Repository',
+            'BoundedContext\Player\Repository'
         );
     }
 }
