@@ -37,6 +37,9 @@ class Dispatcher implements \BoundedContext\Contracts\Bus\Dispatcher
     private function run(Command $command)
     {
         $aggregate = $this->aggregate_repository->by($command);
+
+        dd($aggregate);
+
         $aggregate->handle($command);
 
         $this->aggregate_repository->save(

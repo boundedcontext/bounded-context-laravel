@@ -71,6 +71,16 @@ class BoundedContextProvider extends ServiceProvider
         });
 
         $this->app->bind(
+            'BoundedContext\Contracts\Sourced\Aggregate\State\Snapshot\Repository',
+            'BoundedContext\Laravel\Sourced\Aggregate\State\Snapshot\Repository'
+        );
+
+        $this->app->bind(
+            'BoundedContext\Contracts\Sourced\Aggregate\Repository',
+            'BoundedContext\Sourced\Aggregate\Repository'
+        );
+
+        $this->app->bind(
             'BoundedContext\Contracts\Bus\Dispatcher',
             'BoundedContext\Laravel\Bus\Dispatcher'
         );
