@@ -3,10 +3,8 @@
 namespace BoundedContext\Laravel\Providers;
 
 use BoundedContext\Laravel\Illuminate;
-use BoundedContext\Laravel\Command\Log as CommandLog;
-use BoundedContext\Laravel\Event\Log as EventLog;
+use BoundedContext\Laravel\Illuminate\Log\Log;
 
-use BoundedContext\Laravel\Player\Factory;
 use BoundedContext\Map\Map;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
@@ -50,9 +48,18 @@ class BoundedContextProvider extends ServiceProvider
 
     public function register()
     {
+        /**
+         * Events
+         */
+
         $this->app->bind(
             'BoundedContext\Contracts\Event\Snapshot\Factory',
             'BoundedContext\Laravel\Event\Snapshot\Factory'
+        );
+
+        $this->app->bind(
+            'BoundedContext\Contracts\Event\Snapshot\Upgrader',
+            'BoundedContext\Laravel\Event\Snapshot\Upgrader'
         );
 
         $this->app->bind(
@@ -65,9 +72,13 @@ class BoundedContextProvider extends ServiceProvider
             'BoundedContext\Laravel\Event\Version\Factory'
         );
 
-        $this->app->singleton('BoundedContext\Contracts\Event\Log', function($app)
+        /**
+         * Logs
+         */
+
+        $this->app->singleton('EventLog', function($app)
         {
-            return new EventLog(
+            return new Log(
                 $this->app->make('BoundedContext\Contracts\Event\Snapshot\Factory'),
                 $this->app->make('db'),
                 'event_snapshot_log',
@@ -75,15 +86,19 @@ class BoundedContextProvider extends ServiceProvider
             );
         });
 
-        $this->app->singleton('BoundedContext\Contracts\Command\Log', function($app)
+        $this->app->singleton('CommandLog', function($app)
         {
-            return new CommandLog(
+            return new Log(
                 $this->app->make('BoundedContext\Contracts\Event\Snapshot\Factory'),
                 $this->app->make('db'),
                 'command_snapshot_log',
                 'command_snapshot_stream'
             );
         });
+
+        /**
+         * Aggregates
+         */
 
         $this->app->bind(
             'BoundedContext\Contracts\Sourced\Aggregate\State\Snapshot\Factory',
@@ -105,30 +120,19 @@ class BoundedContextProvider extends ServiceProvider
             'BoundedContext\Laravel\Sourced\Aggregate\Factory'
         );
 
+        $this->app
+            ->when('BoundedContext\Sourced\Aggregate\Repository')
+            ->needs('BoundedContext\Contracts\Sourced\Log\Log')
+            ->give('EventLog');
+
         $this->app->bind(
             'BoundedContext\Contracts\Sourced\Aggregate\Repository',
             'BoundedContext\Sourced\Aggregate\Repository'
         );
 
-        $this->app->bind(
-            'BoundedContext\Contracts\Bus\Dispatcher',
-            'BoundedContext\Laravel\Bus\Dispatcher'
-        );
-
-        $this->app->bind(
-            'BoundedContext\Contracts\Generator\Identifier',
-            'BoundedContext\Laravel\Generator\Uuid'
-        );
-
-        $this->app->bind(
-            'BoundedContext\Contracts\Generator\DateTime',
-            'BoundedContext\Laravel\Generator\DateTime'
-        );
-
-        $this->app->bind(
-            'BoundedContext\Contracts\Projection\Factory',
-            'BoundedContext\Laravel\Illuminate\Projection\Factory'
-        );
+        /**
+         * Players
+         */
 
         $this->app->bind(
             'BoundedContext\Contracts\Player\Snapshot\Repository',
@@ -205,6 +209,35 @@ class BoundedContextProvider extends ServiceProvider
         $this->app->bind(
             'BoundedContext\Contracts\Player\Repository',
             'BoundedContext\Player\Repository'
+        );
+
+        /**
+         * General
+         */
+
+        $this->app
+            ->when('BoundedContext\Laravel\Bus\Dispatcher')
+            ->needs('BoundedContext\Contracts\Sourced\Log\Log')
+            ->give('CommandLog');
+
+        $this->app->bind(
+            'BoundedContext\Contracts\Bus\Dispatcher',
+            'BoundedContext\Laravel\Bus\Dispatcher'
+        );
+
+        $this->app->bind(
+            'BoundedContext\Contracts\Generator\Identifier',
+            'BoundedContext\Laravel\Generator\Uuid'
+        );
+
+        $this->app->bind(
+            'BoundedContext\Contracts\Generator\DateTime',
+            'BoundedContext\Laravel\Generator\DateTime'
+        );
+
+        $this->app->bind(
+            'BoundedContext\Contracts\Projection\Factory',
+            'BoundedContext\Laravel\Illuminate\Projection\Factory'
         );
     }
 }

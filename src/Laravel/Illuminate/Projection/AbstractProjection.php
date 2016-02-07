@@ -2,6 +2,7 @@
 
 use BoundedContext\Contracts\Projection\Queryable;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Database\Query\Builder;
 
 abstract class AbstractProjection
 {
@@ -23,6 +24,9 @@ abstract class AbstractProjection
         $this->query()->delete();
     }
 
+    /**
+     * @return Builder
+     */
     protected function query()
     {
         return $this->connection->table($this->table);

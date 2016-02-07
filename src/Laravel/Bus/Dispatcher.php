@@ -4,7 +4,7 @@ use BoundedContext\Contracts\Collection\Collection;
 use BoundedContext\Contracts\Command\Command;
 
 use BoundedContext\Contracts\Event\Snapshot\Factory as CommandSnapshotFactory;
-use BoundedContext\Contracts\Command\Log as CommandLog;
+use BoundedContext\Contracts\Sourced\Log\Log as CommandLog;
 
 use BoundedContext\Contracts\Sourced\Aggregate\Player\Factory as AggregatePlayerFactory;
 use BoundedContext\Contracts\Sourced\Aggregate\Repository as AggregateRepository;
