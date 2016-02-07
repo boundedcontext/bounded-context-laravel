@@ -17,20 +17,17 @@ class Dispatcher implements \BoundedContext\Contracts\Bus\Dispatcher
     private $command_log;
     private $aggregate_repository;
     private $aggregate_player_factory;
-    private $command_snapshot_factory;
 
     public function __construct(
         Connection $connection,
         AggregateRepository $aggregate_repository,
         AggregatePlayerFactory $aggregate_player_factory,
-        CommandSnapshotFactory $command_snapshot_factory,
         CommandLog $command_log
     )
     {
         $this->connection = $connection;
         $this->aggregate_repository = $aggregate_repository;
         $this->aggregate_player_factory = $aggregate_player_factory;
-        $this->command_snapshot_factory = $command_snapshot_factory;
         $this->command_log = $command_log;
     }
 
@@ -52,9 +49,7 @@ class Dispatcher implements \BoundedContext\Contracts\Bus\Dispatcher
 
         $player->play();
 
-        $this->command_log->append(
-            $this->command_snapshot_factory->event($command)
-        );
+        $this->command_log->append($command);
     }
 
     public function dispatch(Command $command)
