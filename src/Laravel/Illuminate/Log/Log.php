@@ -2,6 +2,7 @@
 
 use BoundedContext\Contracts\Event\Snapshot\Factory;
 use BoundedContext\Contracts\Event\Snapshot\Snapshot;
+use BoundedContext\Contracts\Sourced\Aggregate\Stream\Builder;
 use BoundedContext\Contracts\ValueObject\Identifier;
 use BoundedContext\Schema\Schema;
 use Illuminate\Database\DatabaseManager;
@@ -11,6 +12,7 @@ use BoundedContext\Contracts\Collection\Collection as CollectionContract;
 class Log implements \BoundedContext\Contracts\Sourced\Log\Log
 {
     private $event_snapshot_factory;
+    private $aggregate_stream_builder;
     private $connection;
 
     private $table;
@@ -18,16 +20,23 @@ class Log implements \BoundedContext\Contracts\Sourced\Log\Log
 
     public function __construct(
         Factory $event_snapshot_factory,
+        Builder $aggregate_stream_builder,
         DatabaseManager $manager,
         $table,
         $stream_table
     )
     {
         $this->event_snapshot_factory = $event_snapshot_factory;
+        $this->aggregate_stream_builder = $aggregate_stream_builder;
         $this->connection = $manager->connection();
 
         $this->table = $table;
         $this->stream_table =$stream_table;
+    }
+
+    public function builder()
+    {
+        return $this->aggregate_stream_builder;
     }
 
     public function query()
