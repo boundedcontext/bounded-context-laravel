@@ -47,7 +47,7 @@ class Factory implements \BoundedContext\Contracts\Player\Factory
 
             } elseif ($parameter_contract === Log::class)
             {
-                $args[$parameter_name] = $this->app->make('BoundedContext\Contracts\Event\Log');
+                $args[$parameter_name] = $this->app->make('EventLog');
             } else
             {
                 $args[$parameter_name] = $this->app->make($parameter_contract);

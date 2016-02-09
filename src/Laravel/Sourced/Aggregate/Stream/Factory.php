@@ -23,8 +23,8 @@ class Factory implements \BoundedContext\Contracts\Sourced\Aggregate\Stream\Fact
             'BoundedContext\Laravel\Sourced\Aggregate\Stream\Stream',
             [
                 $this->application,
-                $this->application->make('BoundedContext\Laravel\Event\Snapshot\Factory'),
                 $this->application->make('BoundedContext\Laravel\Event\Factory'),
+                $this->application->make('BoundedContext\Laravel\Event\Snapshot\Factory'),
                 $aggregate_id,
                 $starting_offset,
                 $chunk_size

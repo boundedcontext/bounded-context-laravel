@@ -24,6 +24,8 @@ class Stream extends AbstractQueryable implements \BoundedContext\Contracts\Sour
     protected $chunk_size;
     protected $has_more_chunks;
 
+    protected $table = 'event_snapshot_stream';
+
     public function __construct(
         Application $app,
         EventFactory $event_factory,
@@ -58,7 +60,7 @@ class Stream extends AbstractQueryable implements \BoundedContext\Contracts\Sour
             ->offset($this->current_offset->serialize())
             ->get();
 
-        if(count($rows) < $this->chunk_size)
+        if(count($rows) < $this->chunk_size->serialize())
         {
             $this->has_more_chunks = false;
         }

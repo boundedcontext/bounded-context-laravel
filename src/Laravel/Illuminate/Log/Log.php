@@ -1,12 +1,9 @@
 <?php namespace BoundedContext\Laravel\Illuminate\Log;
 
+use BoundedContext\Contracts\Event\Event;
 use BoundedContext\Contracts\Event\Snapshot\Factory;
-use BoundedContext\Contracts\Event\Snapshot\Snapshot;
 use BoundedContext\Contracts\Sourced\Aggregate\Stream\Builder;
-use BoundedContext\Contracts\ValueObject\Identifier;
-use BoundedContext\Schema\Schema;
 use Illuminate\Database\DatabaseManager;
-use BoundedContext\Collection\Collection;
 use BoundedContext\Contracts\Collection\Collection as CollectionContract;
 
 class Log implements \BoundedContext\Contracts\Sourced\Log\Log
@@ -56,36 +53,19 @@ class Log implements \BoundedContext\Contracts\Sourced\Log\Log
             ->delete();
     }
 
-    public function get_collection(Identifier $id, $limit = 1000)
+    public function append(Event $event)
     {
-        $snapshot_records = $this->connection->table($this->table)
-            ->where('id', '>', $id->serialize())
-            ->limit($limit)
-            ->get();
+        $snapshot = $this->event_snapshot_factory->event($event);
 
-        $snapshots = new Collection();
-
-        foreach($snapshot_records as $snapshot_record)
-        {
-            $snapshots->append(
-                $this->event_snapshot_factory->schema(
-                    new Schema(json_decode($snapshot_record, true))
-                )
-            );
-        }
-
-        return $snapshots;
-    }
-
-    public function append(Snapshot $snapshot)
-    {
         $id = $this->connection->table($this->table)->insertGetId(array(
-            'item' => json_encode($snapshot->serialize())
+            'snapshot' => json_encode($snapshot->serialize())
         ));
 
         $this->connection->table($this->stream_table)->insert([
             'log_id' => $id,
-            'log_item_id' => $snapshot->id()->serialize(),
+            'log_snapshot_id' => $snapshot->id()->serialize(),
+            'aggregate_id' => $snapshot->schema()->id,
+            'version' => $snapshot->version()->serialize(),
         ]);
     }
 

@@ -1,11 +1,11 @@
 <?php namespace BoundedContext\Laravel\Event\Version;
 
 use BoundedContext\Contracts\Event\Event;
-use BoundedContext\Contracts\Event\Version\Factory as EventVersionFactory;
 use BoundedContext\Contracts\Generator\DateTime;
 use BoundedContext\Contracts\Generator\Identifier;
 use BoundedContext\Map\Map;
-use BoundedContext\ValueObject\Integer;
+use BoundedContext\Schema\Schema;
+use BoundedContext\ValueObject\Integer as Integer_;
 
 class Factory implements \BoundedContext\Contracts\Event\Version\Factory
 {
@@ -26,8 +26,16 @@ class Factory implements \BoundedContext\Contracts\Event\Version\Factory
 
     public function event(Event $event)
     {
-        $upgrader = $this->upgrader_factory->event($event);
+        $event_class = get_class($event);
 
-        return $upgrader->version();
+        $upgrader_class = preg_replace(
+            array('/Command/', '/Event/'),
+            array('Upgrader\\Command', 'Upgrader\\Event'),
+            $event_class
+        );
+
+        $upgrader = new $upgrader_class(new Schema(), new Integer_());
+
+        return $upgrader->latest_version();
     }
 }

@@ -52,10 +52,28 @@ class BoundedContextProvider extends ServiceProvider
          * Events
          */
 
+        $this->app->singleton('EventsMap', function($app)
+        {
+            $commands = (!Config::get('commands')) ? [] : Config::get('commands');
+            $events = (!Config::get('events')) ? [] : Config::get('events');
+
+            $events = array_merge($commands, $events);
+
+            return new Map(
+                $events,
+                $this->app->make('BoundedContext\Contracts\Generator\Identifier')
+            );
+        });
+
         $this->app->bind(
             'BoundedContext\Contracts\Event\Snapshot\Factory',
             'BoundedContext\Laravel\Event\Snapshot\Factory'
         );
+
+        $this->app
+            ->when('BoundedContext\Laravel\Event\Snapshot\Factory')
+            ->needs('BoundedContext\Map\Map')
+            ->give('EventsMap');
 
         $this->app->bind(
             'BoundedContext\Contracts\Event\Snapshot\Upgrader',
@@ -142,6 +160,11 @@ class BoundedContextProvider extends ServiceProvider
             'BoundedContext\Laravel\Sourced\Aggregate\Stream\Factory'
         );
 
+        $this->app->bind(
+            'BoundedContext\Contracts\Business\Invariant\Factory',
+            'BoundedContext\Laravel\Business\Invariant\Factory'
+        );
+
         /**
          * Players
          */
@@ -177,6 +200,7 @@ class BoundedContextProvider extends ServiceProvider
                     ->give($implemented_queryable);
 
                 $this->app->singleton($projection, $implemented_projection);
+                $this->app->singleton($queryable, $implemented_queryable);
             }
         }
 

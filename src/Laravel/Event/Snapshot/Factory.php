@@ -9,7 +9,6 @@ use BoundedContext\Contracts\Generator\Identifier;
 use BoundedContext\Schema\Schema;
 use BoundedContext\Contracts\Schema\Schema as SchemaContract;
 use BoundedContext\Map\Map;
-use BoundedContext\ValueObject\Integer;
 
 class Factory implements \BoundedContext\Contracts\Event\Snapshot\Factory
 {
