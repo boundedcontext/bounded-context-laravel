@@ -27,7 +27,7 @@ class Factory implements \BoundedContext\Contracts\Business\Invariant\Factory
         $state_queryable_class = get_class($this->queryable);
 
         $queryable_name = $reflection_class
-            ->getMethod('satisfy')
+            ->getMethod('satisfier')
             ->getParameters()[0]
             ->getClass()
             ->name

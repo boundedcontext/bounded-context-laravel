@@ -17,7 +17,7 @@ class Repository implements \BoundedContext\Contracts\Player\Snapshot\Repository
     public function __construct(
         Application $app,
         Factory $snapshot_factory,
-        $table = 'player_snapshots'
+        $table = 'snapshots_player'
     )
     {
         $this->app = $app;

@@ -5,7 +5,6 @@ use BoundedContext\Contracts\Sourced\Aggregate\State\Snapshot\Factory as StateSn
 use BoundedContext\Contracts\Sourced\Aggregate\State\Snapshot\Snapshot;
 use BoundedContext\Laravel\Illuminate\Projection\AbstractQueryable;
 use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Support\Facades\DB;
 
 class Repository extends AbstractQueryable implements \BoundedContext\Contracts\Sourced\Aggregate\State\Snapshot\Repository
 {
@@ -25,6 +24,8 @@ class Repository extends AbstractQueryable implements \BoundedContext\Contracts\
             ->where('id', $id->serialize())
             ->first()
         ;
+
+        $snapshot_row = (array) $snapshot_row;
 
         if(!$snapshot_row)
         {

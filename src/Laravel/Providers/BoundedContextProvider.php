@@ -267,8 +267,18 @@ class BoundedContextProvider extends ServiceProvider
         );
 
         $this->app->bind(
+            'BoundedContext\Contracts\ValueObject\Identifier',
+            'BoundedContext\Laravel\ValueObject\Uuid'
+        );
+
+        $this->app->bind(
             'BoundedContext\Contracts\Generator\DateTime',
             'BoundedContext\Laravel\Generator\DateTime'
+        );
+
+        $this->app->bind(
+            'BoundedContext\Contracts\ValueObject\DateTime',
+            'BoundedContext\Laravel\ValueObject\DateTime'
         );
 
         $this->app->bind(
