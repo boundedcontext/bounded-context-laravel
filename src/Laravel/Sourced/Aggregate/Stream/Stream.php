@@ -54,8 +54,10 @@ class Stream extends AbstractQueryable implements \BoundedContext\Contracts\Sour
     private function get_next_chunk()
     {
         $rows = $this->query()
-            ->where('aggregate_id', $this->aggregate_id->serialize())
-            ->orderBy('id')
+            ->select('event_snapshot_log.snapshot')
+            ->where('event_snapshot_stream.aggregate_id', $this->aggregate_id->serialize())
+            ->orderBy('event_snapshot_stream.id')
+            ->join('event_snapshot_log', 'event_snapshot_stream.log_id', '=', 'event_snapshot_log.id')
             ->limit($this->chunk_size->serialize())
             ->offset($this->current_offset->serialize())
             ->get();
@@ -76,13 +78,17 @@ class Stream extends AbstractQueryable implements \BoundedContext\Contracts\Sour
         foreach($rows as $row)
         {
             $event_snapshot = $this->event_snapshot_factory->schema(
-                new Schema($row)
+                new Schema(json_decode($row->snapshot, true))
             );
 
             $events->append(
                 $this->event_factory->snapshot($event_snapshot)
             );
         }
+
+        $this->current_offset = $this->current_offset->add(
+            new Integer_($events->count())
+        );
 
         return $events;
     }
@@ -92,12 +98,6 @@ class Stream extends AbstractQueryable implements \BoundedContext\Contracts\Sour
         return $this->event_collection->current();
     }
 
-    /**
-     * Move forward to next element
-     * @link http://php.net/manual/en/iterator.next.php
-     * @return void Any returned value is ignored.
-     * @since 5.0.0
-     */
     public function next()
     {
         $this->event_collection->next();
@@ -110,35 +110,16 @@ class Stream extends AbstractQueryable implements \BoundedContext\Contracts\Sour
         }
     }
 
-    /**
-     * Return the key of the current element
-     * @link http://php.net/manual/en/iterator.key.php
-     * @return mixed scalar on success, or null on failure.
-     * @since 5.0.0
-     */
     public function key()
     {
         return $this->event_collection->key();
     }
 
-    /**
-     * Checks if current position is valid
-     * @link http://php.net/manual/en/iterator.valid.php
-     * @return boolean The return value will be casted to boolean and then evaluated.
-     * Returns true on success or false on failure.
-     * @since 5.0.0
-     */
     public function valid()
     {
         return $this->event_collection->valid();
     }
 
-    /**
-     * Rewind the Iterator to the first element
-     * @link http://php.net/manual/en/iterator.rewind.php
-     * @return void Any returned value is ignored.
-     * @since 5.0.0
-     */
     public function rewind()
     {
         $this->event_collection->rewind();

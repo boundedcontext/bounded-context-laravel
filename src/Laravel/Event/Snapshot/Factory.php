@@ -1,6 +1,5 @@
 <?php namespace BoundedContext\Laravel\Event\Snapshot;
 
-use BoundedContext\Contracts\Collection\Collection;
 use BoundedContext\Contracts\Event\Event;
 use BoundedContext\Event\Snapshot\Snapshot;
 use BoundedContext\Contracts\Event\Version\Factory as EventVersionFactory;
@@ -9,6 +8,7 @@ use BoundedContext\Contracts\Generator\Identifier;
 use BoundedContext\Schema\Schema;
 use BoundedContext\Contracts\Schema\Schema as SchemaContract;
 use BoundedContext\Map\Map;
+use BoundedContext\ValueObject\Integer as Integer_;
 
 class Factory implements \BoundedContext\Contracts\Event\Snapshot\Factory
 {
@@ -41,25 +41,11 @@ class Factory implements \BoundedContext\Contracts\Event\Snapshot\Factory
         );
     }
 
-    public function collection(Collection $events)
-    {
-        $event_snapshots = new \BoundedContext\Collection\Collection();
-
-        foreach($events as $event)
-        {
-            $event_snapshots->append(
-                $this->event($event)
-            );
-        }
-
-        return $event_snapshots;
-    }
-
     public function schema(SchemaContract $schema)
     {
         return new Snapshot(
             $this->identifier_generator->string($schema->id),
-            new Integer($schema->version),
+            new Integer_($schema->version),
             $this->datetime_generator->string($schema->occurred_at),
             $this->identifier_generator->string($schema->type_id),
             new Schema($schema->event)

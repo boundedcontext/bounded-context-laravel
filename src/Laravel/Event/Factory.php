@@ -32,7 +32,7 @@ class Factory implements \BoundedContext\Contracts\Event\Factory
 
         return $this->deserializer->deserialize(
             $event_class,
-            $snapshot->schema()->event
+            $snapshot->schema()->serialize()
         );
     }
 }

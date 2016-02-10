@@ -80,10 +80,20 @@ class BoundedContextProvider extends ServiceProvider
             'BoundedContext\Laravel\Event\Snapshot\Upgrader'
         );
 
+        $this->app
+            ->when('BoundedContext\Laravel\Event\Snapshot\Upgrader')
+            ->needs('BoundedContext\Map\Map')
+            ->give('EventsMap');
+
         $this->app->bind(
             'BoundedContext\Contracts\Event\Factory',
             'BoundedContext\Laravel\Event\Factory'
         );
+
+        $this->app
+            ->when('BoundedContext\Laravel\Event\Factory')
+            ->needs('BoundedContext\Map\Map')
+            ->give('EventsMap');
 
         $this->app->bind(
             'BoundedContext\Contracts\Event\Version\Factory',
