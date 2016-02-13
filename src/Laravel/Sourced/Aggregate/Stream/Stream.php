@@ -3,7 +3,6 @@
 use BoundedContext\Collection\Collection;
 use BoundedContext\Contracts\ValueObject\Identifier;
 use BoundedContext\Laravel\Event\Snapshot\Factory as EventSnapshotFactory;
-use BoundedContext\Laravel\Event\Factory as EventFactory;
 use BoundedContext\Schema\Schema;
 use BoundedContext\Sourced\Stream\AbstractStream;
 use BoundedContext\ValueObject\Integer as Integer_;
@@ -15,9 +14,6 @@ class Stream extends AbstractStream implements \BoundedContext\Contracts\Sourced
     protected $stream_table = 'event_snapshot_stream';
     protected $log_table = 'event_snapshot_log';
 
-    protected $event_factory;
-    protected $event_snapshot_factory;
-
     protected $aggregate_id;
 
     protected $starting_offset;
@@ -25,7 +21,6 @@ class Stream extends AbstractStream implements \BoundedContext\Contracts\Sourced
 
     public function __construct(
         ConnectionInterface $connection,
-        EventFactory $event_factory,
         EventSnapshotFactory $event_snapshot_factory,
         Identifier $aggregate_id,
         Integer_ $starting_offset,
@@ -41,7 +36,6 @@ class Stream extends AbstractStream implements \BoundedContext\Contracts\Sourced
         $this->current_offset = $starting_offset;
 
         parent::__construct(
-            $event_factory,
             $event_snapshot_factory,
             $limit,
             $chunk_size

@@ -24,7 +24,6 @@ class Factory implements \BoundedContext\Contracts\Sourced\Aggregate\Stream\Fact
             'BoundedContext\Laravel\Sourced\Aggregate\Stream\Stream',
             [
                 $this->application->make('db')->connection(),
-                $this->application->make('BoundedContext\Laravel\Event\Factory'),
                 $this->application->make('BoundedContext\Laravel\Event\Snapshot\Factory'),
                 $aggregate_id,
                 $starting_offset,

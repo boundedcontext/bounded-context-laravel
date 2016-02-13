@@ -23,7 +23,6 @@ class Factory implements \BoundedContext\Contracts\Sourced\Stream\Factory
             'BoundedContext\Laravel\Illuminate\Stream\Stream',
             [
                 $this->application->make('db')->connection(),
-                $this->application->make('BoundedContext\Laravel\Event\Factory'),
                 $this->application->make('BoundedContext\Laravel\Event\Snapshot\Factory'),
                 $starting_id,
                 $limit,

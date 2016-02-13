@@ -8,7 +8,6 @@ use BoundedContext\Sourced\Stream\AbstractStream;
 use BoundedContext\ValueObject\Integer as Integer_;
 
 use BoundedContext\Laravel\Event\Snapshot\Factory as EventSnapshotFactory;
-use BoundedContext\Laravel\Event\Factory as EventFactory;
 use Illuminate\Database\ConnectionInterface;
 
 class Stream extends AbstractStream implements \BoundedContext\Contracts\Sourced\Stream\Stream
@@ -22,7 +21,6 @@ class Stream extends AbstractStream implements \BoundedContext\Contracts\Sourced
 
     public function __construct(
         ConnectionInterface $connection,
-        EventFactory $event_factory,
         EventSnapshotFactory $event_snapshot_factory,
         Identifier $starting_id,
         Integer_  $limit,
@@ -35,7 +33,6 @@ class Stream extends AbstractStream implements \BoundedContext\Contracts\Sourced
         $this->last_id = $starting_id;
 
         parent::__construct(
-            $event_factory,
             $event_snapshot_factory,
             $limit,
             $chunk_size
