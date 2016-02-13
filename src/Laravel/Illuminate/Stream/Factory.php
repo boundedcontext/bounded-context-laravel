@@ -1,10 +1,10 @@
-<?php namespace BoundedContext\Laravel\Sourced\Aggregate\Stream;
+<?php namespace BoundedContext\Laravel\Illuminate\Stream;
 
 use BoundedContext\Contracts\ValueObject\Identifier;
 use BoundedContext\ValueObject\Integer as Integer_;
 use Illuminate\Contracts\Foundation\Application;
 
-class Factory implements \BoundedContext\Contracts\Sourced\Aggregate\Stream\Factory
+class Factory implements \BoundedContext\Contracts\Sourced\Stream\Factory
 {
     private $application;
 
@@ -14,20 +14,18 @@ class Factory implements \BoundedContext\Contracts\Sourced\Aggregate\Stream\Fact
     }
 
     public function create(
-        Identifier $aggregate_id,
-        Integer_ $starting_offset,
+        Identifier $starting_id,
         Integer_ $limit,
         Integer_ $chunk_size
     )
     {
         return $this->application->make(
-            'BoundedContext\Laravel\Sourced\Aggregate\Stream\Stream',
+            'BoundedContext\Laravel\Illuminate\Stream\Stream',
             [
                 $this->application->make('db')->connection(),
                 $this->application->make('BoundedContext\Laravel\Event\Factory'),
                 $this->application->make('BoundedContext\Laravel\Event\Snapshot\Factory'),
-                $aggregate_id,
-                $starting_offset,
+                $starting_id,
                 $limit,
                 $chunk_size
             ]

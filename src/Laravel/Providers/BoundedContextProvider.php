@@ -104,11 +104,21 @@ class BoundedContextProvider extends ServiceProvider
          * Logs
          */
 
+        $this->app->bind(
+            'BoundedContext\Contracts\Sourced\Stream\Factory',
+            'BoundedContext\Laravel\Illuminate\Stream\Factory'
+        );
+
+        $this->app->bind(
+            'BoundedContext\Contracts\Sourced\Stream\Builder',
+            'BoundedContext\Sourced\Stream\Builder'
+        );
+
         $this->app->singleton('EventLog', function($app)
         {
             return new Log(
                 $this->app->make('BoundedContext\Contracts\Event\Snapshot\Factory'),
-                $this->app->make('BoundedContext\Contracts\Sourced\Aggregate\Stream\Builder'),
+                $this->app->make('BoundedContext\Contracts\Sourced\Stream\Builder'),
                 $this->app->make('db'),
                 'event_snapshot_log',
                 'event_snapshot_stream'
@@ -119,7 +129,7 @@ class BoundedContextProvider extends ServiceProvider
         {
             return new Log(
                 $this->app->make('BoundedContext\Contracts\Event\Snapshot\Factory'),
-                $this->app->make('BoundedContext\Contracts\Sourced\Aggregate\Stream\Builder'),
+                $this->app->make('BoundedContext\Contracts\Sourced\Stream\Builder'),
                 $this->app->make('db'),
                 'command_snapshot_log',
                 'command_snapshot_stream'

@@ -1,122 +1,95 @@
-<?php namespace BoundedContext\Laravel\Illuminate\Log;
+<?php namespace BoundedContext\Laravel\Illuminate\Stream;
 
-use BoundedContext\Contracts\Event\Snapshot\Factory;
-use BoundedContext\Contracts\Event\Snapshot\Snapshot;
 use BoundedContext\Contracts\ValueObject\Identifier;
-use BoundedContext\Schema\Schema;
-use BoundedContext\ValueObject\Integer as Version;
-use Illuminate\Database\DatabaseManager;
+
 use BoundedContext\Collection\Collection;
-use BoundedContext\Contracts\Collection\Collection as CollectionContract;
+use BoundedContext\Schema\Schema;
+use BoundedContext\Sourced\Stream\AbstractStream;
+use BoundedContext\ValueObject\Integer as Integer_;
 
-class Stream implements \BoundedContext\Contracts\Sourced\Aggregate\Stream\Stream
+use BoundedContext\Laravel\Event\Snapshot\Factory as EventSnapshotFactory;
+use BoundedContext\Laravel\Event\Factory as EventFactory;
+use Illuminate\Database\ConnectionInterface;
+
+class Stream extends AbstractStream implements \BoundedContext\Contracts\Sourced\Stream\Stream
 {
-    private $event_snapshot_factory;
-    private $connection;
+    protected $connection;
+    protected $stream_table = 'event_snapshot_stream';
+    protected $log_table = 'event_snapshot_log';
 
-    private $table;
-    private $stream_table;
+    protected $starting_id;
+    protected $last_id;
 
     public function __construct(
-        Factory $event_snapshot_factory,
-        DatabaseManager $manager,
-        $table,
-        $stream_table
+        ConnectionInterface $connection,
+        EventFactory $event_factory,
+        EventSnapshotFactory $event_snapshot_factory,
+        Identifier $starting_id,
+        Integer_  $limit,
+        Integer_ $chunk_size
     )
     {
-        $this->event_snapshot_factory = $event_snapshot_factory;
-        $this->connection = $manager->connection();
+        $this->connection = $connection;
 
-        $this->table = $table;
-        $this->stream_table =$stream_table;
-    }
+        $this->starting_id = $starting_id;
+        $this->last_id = $starting_id;
 
-    public function query()
-    {
-        return $this->connection
-            ->table($this->table);
+        parent::__construct(
+            $event_factory,
+            $event_snapshot_factory,
+            $limit,
+            $chunk_size
+        );
     }
 
     public function reset()
     {
-        $this->connection
-            ->table($this->table)
-            ->delete();
+        $this->last_id = $this->starting_id;
 
-        $this->connection
-            ->table($this->stream_table)
-            ->delete();
+        parent::reset();
     }
 
-    public function get_collection(Identifier $id, $limit = 1000)
+    private function get_next_chunk()
     {
-        $snapshot_records = $this->connection->table($this->table)
-            ->where('id', '>', $id->serialize())
-            ->limit($limit)
+        $rows = $this->connection
+            ->table($this->stream_table)
+            ->select("$this->log_table.snapshot")
+            ->join(
+                $this->log_table,
+                "$this->stream_table.log_id",
+                '=',
+                "$this->log_table.id"
+            )
+            ->where(
+                "$this->stream_table.log_snapshot_id", ">",
+                $this->last_id->serialize()
+            )
+            ->orderBy("$this->stream_table.id")
+            ->limit($this->chunk_size->serialize())
             ->get();
 
-        $snapshots = new Collection();
+        return $rows;
+    }
 
-        foreach($snapshot_records as $snapshot_record)
+    protected function fetch()
+    {
+        $this->event_snapshot_schemas = new Collection();
+
+        $event_snapshot_schemas = $this->get_next_chunk();
+
+        foreach($event_snapshot_schemas as $event_snapshot_schema)
         {
-            $snapshots->append(
-                $this->event_snapshot_factory->schema(
-                    new Schema(json_decode($snapshot_record, true))
+            $event_snapshot = $this->event_snapshot_factory->schema(
+                new Schema(
+                    json_decode(
+                        $event_snapshot_schema->snapshot,
+                        true
+                    )
                 )
             );
+
+            $this->event_snapshot_schemas->append($event_snapshot);
+            $this->last_id = $event_snapshot->id();
         }
-
-        return $snapshots;
-    }
-
-    public function append(Snapshot $snapshot)
-    {
-        $id = $this->connection->table($this->table)->insertGetId(array(
-            'item' => json_encode($snapshot->serialize())
-        ));
-
-        $this->connection->table($this->stream_table)->insert([
-            'log_id' => $id,
-            'log_item_id' => $snapshot->id()->serialize(),
-        ]);
-    }
-
-    public function append_collection(CollectionContract $snapshots)
-    {
-        foreach($snapshots as $snapshot)
-        {
-            $this->append($snapshot);
-        }
-    }
-
-    /**
-     * Sets that the Stream should look for snapshots after a version.
-     *
-     * @param Version $version
-     * @return \BoundedContext\Contracts\Sourced\Aggregate\Stream\Stream
-     */
-    public function after(Version $version)
-    {
-        // TODO: Implement after() method.
-    }
-
-    /**
-     * Sets that the Stream should look for snapshots with an id.
-     *
-     * @return \BoundedContext\Contracts\Sourced\Aggregate\Stream\Stream
-     */
-    public function with(Identifier $id)
-    {
-        // TODO: Implement with() method.
-    }
-
-    /**
-     * Gets the resulting Snapshots.
-     *
-     * @return CollectionContract
-     */
-    public function as_collection()
-    {
-        // TODO: Implement as_collection() method.
     }
 }
