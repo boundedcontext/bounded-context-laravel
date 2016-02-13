@@ -9,7 +9,7 @@ use BoundedContext\Sourced\Stream\AbstractStream;
 use BoundedContext\ValueObject\Integer as Integer_;
 use Illuminate\Database\ConnectionInterface;
 
-class Stream extends AbstractStream implements \BoundedContext\Contracts\Sourced\Aggregate\Stream\Stream
+class Stream extends AbstractStream implements \BoundedContext\Contracts\Sourced\Stream\Stream
 {
     protected $connection;
     protected $stream_table = 'event_snapshot_stream';
