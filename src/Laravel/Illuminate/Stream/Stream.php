@@ -70,7 +70,7 @@ class Stream extends AbstractStream implements \BoundedContext\Contracts\Sourced
 
     protected function fetch()
     {
-        $this->event_snapshot_schemas = new Collection();
+        $this->event_snapshots = new Collection();
 
         $event_snapshot_schemas = $this->get_next_chunk();
 
@@ -85,7 +85,7 @@ class Stream extends AbstractStream implements \BoundedContext\Contracts\Sourced
                 )
             );
 
-            $this->event_snapshot_schemas->append($event_snapshot);
+            $this->event_snapshots->append($event_snapshot);
             $this->last_id = $event_snapshot->id();
         }
     }
