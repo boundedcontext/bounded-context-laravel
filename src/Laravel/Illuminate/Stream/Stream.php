@@ -48,7 +48,7 @@ class Stream extends AbstractStream implements \BoundedContext\Contracts\Sourced
 
     private function get_next_chunk()
     {
-        $rows = $this->connection
+        $query = $this->connection
             ->table($this->stream_table)
             ->select("$this->log_table.snapshot")
             ->join(
@@ -57,13 +57,22 @@ class Stream extends AbstractStream implements \BoundedContext\Contracts\Sourced
                 '=',
                 "$this->log_table.id"
             )
-            ->where(
-                "$this->stream_table.log_snapshot_id", ">",
-                $this->last_id->serialize()
-            )
             ->orderBy("$this->stream_table.id")
-            ->limit($this->chunk_size->serialize())
-            ->get();
+            ->limit($this->chunk_size->serialize());
+
+        if(!$this->last_id->is_null())
+        {
+            $query->whereRaw("
+                $this->stream_table.id >
+                    (
+                        SELECT id FROM `$this->stream_table`
+                        WHERE `$this->stream_table`.`log_snapshot_id` = '".$this->last_id->serialize()."'
+                    )
+                "
+            );
+        }
+
+        $rows = $query->get();
 
         return $rows;
     }

@@ -31,15 +31,15 @@ class Log implements \BoundedContext\Contracts\Sourced\Log\Log
         $this->stream_table =$stream_table;
     }
 
-    public function builder()
-    {
-        return $this->stream_builder;
-    }
-
-    public function query()
+    protected function query()
     {
         return $this->connection
             ->table($this->table);
+    }
+
+    public function builder()
+    {
+        return $this->stream_builder;
     }
 
     public function reset()

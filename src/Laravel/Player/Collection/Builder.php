@@ -17,33 +17,10 @@ class Builder
         $this->players = new Collection();
     }
 
-    public function application()
-    {
-
-    }
-
-    public function domain()
-    {
-
-    }
-
-    public function bounded_context(Uuid $namespace)
-    {
-
-    }
-
-    public function projectors()
-    {
-
-    }
-
-    public function workflows()
-    {
-
-    }
-
     public function all()
     {
+        $this->players = new Collection();
+
         $player_spaces = Config::get('players');
 
         foreach($player_spaces as $player_space => $player_types)
